@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  diaAnterior,
   diasDelMes,
+  esFechaValida,
+  nombreDiaSemana,
+  ultimaFechaDelMes,
   fechaLocal,
   limitesSelectorMes,
   mesAnterior,
@@ -118,5 +122,55 @@ describe('limitesSelectorMes', () => {
 
   it('funciona al cruzar el año', () => {
     expect(limitesSelectorMes('2027-01', '2027-01', '2026-12').puedeIrAnterior).toBe(true);
+  });
+});
+
+describe('diaAnterior', () => {
+  it('dentro del mes', () => {
+    expect(diaAnterior('2026-11-17')).toBe('2026-11-16');
+  });
+
+  it('cruza el cambio de mes', () => {
+    expect(diaAnterior('2026-12-01')).toBe('2026-11-30');
+    expect(diaAnterior('2026-03-01')).toBe('2026-02-28');
+    expect(diaAnterior('2028-03-01')).toBe('2028-02-29');
+  });
+
+  it('cruza el cambio de año', () => {
+    expect(diaAnterior('2027-01-01')).toBe('2026-12-31');
+  });
+});
+
+describe('nombreDiaSemana', () => {
+  it.each([
+    ['2026-11-16', 'lunes'],
+    ['2026-11-15', 'domingo'],
+    ['2026-11-14', 'sábado'],
+    ['2026-11-11', 'miércoles'],
+    ['2027-01-01', 'viernes'],
+    ['2028-02-29', 'martes'],
+  ])('%s es %s', (fecha, nombre) => {
+    expect(nombreDiaSemana(fecha)).toBe(nombre);
+  });
+});
+
+describe('esFechaValida', () => {
+  it('acepta fechas que existen', () => {
+    expect(esFechaValida('2028-02-29')).toBe(true);
+    expect(esFechaValida('2026-11-30')).toBe(true);
+  });
+
+  it.each(['', '2026-11-31', '2027-02-29', '2026-13-01', '2026-11-00', '16-11-2026', '2026-1-5'])(
+    'rechaza "%s"',
+    (fecha) => {
+      expect(esFechaValida(fecha)).toBe(false);
+    },
+  );
+});
+
+describe('ultimaFechaDelMes', () => {
+  it('da el último día', () => {
+    expect(ultimaFechaDelMes('2026-11')).toBe('2026-11-30');
+    expect(ultimaFechaDelMes('2028-02')).toBe('2028-02-29');
   });
 });

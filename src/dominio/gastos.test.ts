@@ -1,0 +1,159 @@
+import { describe, expect, it } from 'vitest';
+import type { Gasto } from './tipos';
+import {
+  fechaDeOpcion,
+  opcionDeFecha,
+  ordenarGastos,
+  textoCantidadGastos,
+  textoConfirmarEliminar,
+  textoFechaGasto,
+  textoResumenGastos,
+  textoVerTodos,
+  totalGastos,
+  validarGasto,
+} from './gastos';
+
+function gasto(id: string, fecha: string, monto = 1000, creadoEn = '2026-11-17T10:00:00'): Gasto {
+  return {
+    id,
+    fecha,
+    monto,
+    categoriaId: 'c',
+    origen: 'manual',
+    glosa: null,
+    movimientoId: null,
+    creadoEn,
+    actualizadoEn: creadoEn,
+  };
+}
+
+describe('ordenarGastos (NOR-5)', () => {
+  it('del más reciente al más antiguo', () => {
+    const lista = [gasto('a', '2026-11-03'), gasto('b', '2026-11-16'), gasto('c', '2026-11-10')];
+    expect(ordenarGastos(lista).map((g) => g.id)).toEqual(['b', 'c', 'a']);
+  });
+
+  it('el mismo día, el último anotado va primero', () => {
+    const lista = [
+      gasto('primero', '2026-11-16', 1, '2026-11-16T09:00:00'),
+      gasto('tercero', '2026-11-16', 1, '2026-11-16T18:30:00'),
+      gasto('segundo', '2026-11-16', 1, '2026-11-16T12:00:00'),
+    ];
+    expect(ordenarGastos(lista).map((g) => g.id)).toEqual(['tercero', 'segundo', 'primero']);
+  });
+
+  it('un gasto de otro día anotado después queda según su fecha', () => {
+    const lista = [gasto('hoy', '2026-11-17', 1, '2026-11-17T09:00:00'), gasto('atrasado', '2026-11-12', 1, '2026-11-17T20:00:00')];
+    expect(ordenarGastos(lista).map((g) => g.id)).toEqual(['hoy', 'atrasado']);
+  });
+});
+
+describe('totales y textos de la tabla', () => {
+  it('suma los montos', () => {
+    expect(totalGastos([gasto('a', '2026-11-01', 12500), gasto('b', '2026-11-02', 265000)])).toBe(277500);
+    expect(totalGastos([])).toBe(0);
+  });
+
+  it('cantidad en singular y plural', () => {
+    expect(textoCantidadGastos(1)).toBe('1 gasto');
+    expect(textoCantidadGastos(0)).toBe('0 gastos');
+    expect(textoCantidadGastos(14)).toBe('14 gastos');
+  });
+
+  it('encabezado como en la pantalla de referencia', () => {
+    const lista = [gasto('a', '2026-11-01', 12500), gasto('b', '2026-11-02', 265000)];
+    expect(textoResumenGastos(lista)).toBe('2 gastos, $277.500 en total');
+  });
+
+  it('botón para ver todos', () => {
+    expect(textoVerTodos(14)).toBe('Ver los 14 gastos del mes');
+  });
+});
+
+describe('textoFechaGasto (NOR-6)', () => {
+  const hoy = '2026-11-16';
+
+  it('hoy', () => {
+    expect(textoFechaGasto('2026-11-16', hoy)).toBe('Hoy, lunes 16');
+  });
+
+  it('ayer', () => {
+    expect(textoFechaGasto('2026-11-15', hoy)).toBe('Ayer, domingo 15');
+  });
+
+  it('el resto con el día con mayúscula', () => {
+    expect(textoFechaGasto('2026-11-14', hoy)).toBe('Sábado 14');
+    expect(textoFechaGasto('2026-11-11', hoy)).toBe('Miércoles 11');
+  });
+
+  it('ayer en el mes anterior', () => {
+    expect(textoFechaGasto('2026-11-30', '2026-12-01')).toBe('Ayer, lunes 30');
+  });
+
+  it('un mismo número de día en otro mes no es hoy', () => {
+    expect(textoFechaGasto('2026-10-16', hoy)).toBe('Viernes 16');
+  });
+});
+
+describe('¿Cuándo fue?', () => {
+  it('Hoy y Ayer calculan la fecha', () => {
+    expect(fechaDeOpcion('hoy', '2027-01-01', '')).toBe('2027-01-01');
+    expect(fechaDeOpcion('ayer', '2027-01-01', '')).toBe('2026-12-31');
+  });
+
+  it('Otro día usa la fecha elegida', () => {
+    expect(fechaDeOpcion('otro', '2026-11-17', '2026-10-28')).toBe('2026-10-28');
+  });
+
+  it('al corregir se marca el botón que corresponde', () => {
+    expect(opcionDeFecha('2026-11-17', '2026-11-17')).toBe('hoy');
+    expect(opcionDeFecha('2026-11-16', '2026-11-17')).toBe('ayer');
+    expect(opcionDeFecha('2026-11-15', '2026-11-17')).toBe('otro');
+  });
+});
+
+describe('validarGasto (NOR-3)', () => {
+  const base = { monto: 12500, fecha: '2026-11-17', categoriaId: 'c', hoy: '2026-11-17' };
+
+  it('un gasto completo no tiene errores', () => {
+    expect(validarGasto(base)).toEqual({});
+  });
+
+  it('NOR-A2: monto vacío o cero', () => {
+    expect(validarGasto({ ...base, monto: null })).toEqual({ monto: 'Escribe cuánto gastaste' });
+    expect(validarGasto({ ...base, monto: 0 })).toEqual({ monto: 'Escribe cuánto gastaste' });
+  });
+
+  it('NOR-A3: sin categoría', () => {
+    expect(validarGasto({ ...base, categoriaId: null })).toEqual({ categoria: 'Elige en qué fue' });
+  });
+
+  it('NOR-A4: no acepta fechas futuras', () => {
+    expect(validarGasto({ ...base, fecha: '2026-11-18' })).toEqual({ fecha: 'Elige un día que no sea futuro' });
+  });
+
+  it('Otro día sin fecha elegida', () => {
+    expect(validarGasto({ ...base, fecha: '' })).toEqual({ fecha: 'Elige qué día fue' });
+  });
+
+  it('informa todos los errores a la vez', () => {
+    expect(Object.keys(validarGasto({ ...base, monto: null, categoriaId: null }))).toEqual(['monto', 'categoria']);
+  });
+});
+
+describe('textoConfirmarEliminar', () => {
+  const hoy = '2026-11-16';
+
+  it('un día cualquiera', () => {
+    expect(textoConfirmarEliminar({ monto: 23500, fecha: '2026-11-14' }, 'Supermercado', hoy)).toBe(
+      '¿Eliminar el gasto de $23.500 en Supermercado del sábado 14?',
+    );
+  });
+
+  it('hoy y ayer', () => {
+    expect(textoConfirmarEliminar({ monto: 8500, fecha: hoy }, 'Salud', hoy)).toBe('¿Eliminar el gasto de $8.500 en Salud de hoy?');
+    expect(textoConfirmarEliminar({ monto: 8500, fecha: '2026-11-15' }, 'Salud', hoy)).toBe(
+      '¿Eliminar el gasto de $8.500 en Salud de ayer?',
+    );
+  });
+});

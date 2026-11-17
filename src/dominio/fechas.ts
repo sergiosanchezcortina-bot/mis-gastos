@@ -82,6 +82,48 @@ export function nombreMesConAnio(mes: string): string {
   return `${nombre.charAt(0).toUpperCase()}${nombre.slice(1)} ${partesMes(mes).anio}`;
 }
 
+const NOMBRES_DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'] as const;
+
+/** Separa "AAAA-MM-DD" en año, mes y día. */
+export function partesFecha(fecha: string): { anio: number; mes: number; dia: number } {
+  const coincidencia = PATRON_FECHA.exec(fecha);
+  if (!coincidencia) throw new RangeError(`Fecha inválida: ${fecha}`);
+  const partes = { anio: Number(coincidencia[1]), mes: Number(coincidencia[2]), dia: Number(coincidencia[3]) };
+  if (partes.mes < 1 || partes.mes > 12 || partes.dia < 1 || partes.dia > diasDelMes(`${coincidencia[1]}-${coincidencia[2]}`)) {
+    throw new RangeError(`Fecha inválida: ${fecha}`);
+  }
+  return partes;
+}
+
+/** Comprueba que el texto sea una fecha "AAAA-MM-DD" que existe. */
+export function esFechaValida(fecha: string): boolean {
+  try {
+    partesFecha(fecha);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** El día anterior: "2027-01-01" -> "2026-12-31". */
+export function diaAnterior(fecha: string): string {
+  const { anio, mes, dia } = partesFecha(fecha);
+  return fechaLocal(new Date(anio, mes - 1, dia - 1));
+}
+
+/** Nombre del día de la semana en minúscula: "lunes". */
+export function nombreDiaSemana(fecha: string): string {
+  const { anio, mes, dia } = partesFecha(fecha);
+  const nombre = NOMBRES_DIAS[new Date(anio, mes - 1, dia).getDay()];
+  if (nombre === undefined) throw new RangeError(`Fecha inválida: ${fecha}`);
+  return nombre;
+}
+
+/** Último día de un mes como fecha: "2026-11" -> "2026-11-30". */
+export function ultimaFechaDelMes(mes: string): string {
+  return `${mes}-${String(diasDelMes(mes)).padStart(2, '0')}`;
+}
+
 /**
  * Hasta dónde se puede mover el selector de mes.
  * "Mes siguiente" se desactiva en el mes actual.
