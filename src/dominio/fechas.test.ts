@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   diaAnterior,
+  diasEntre,
+  fechaHoraLocal,
+  fechaLarga,
   diasDelMes,
   esFechaValida,
   nombreDiaSemana,
@@ -172,5 +175,24 @@ describe('ultimaFechaDelMes', () => {
   it('da el último día', () => {
     expect(ultimaFechaDelMes('2026-11')).toBe('2026-11-30');
     expect(ultimaFechaDelMes('2028-02')).toBe('2028-02-29');
+  });
+});
+
+describe('fechaLarga, diasEntre y fechaHoraLocal', () => {
+  it('fecha para leer', () => {
+    expect(fechaLarga('2026-11-17')).toBe('17 de noviembre de 2026');
+    expect(fechaLarga('2027-01-01')).toBe('1 de enero de 2027');
+  });
+
+  it('días entre fechas, cruzando meses, años y bisiestos', () => {
+    expect(diasEntre('2026-11-17', '2026-11-17')).toBe(0);
+    expect(diasEntre('2026-10-17', '2026-11-17')).toBe(31);
+    expect(diasEntre('2026-12-31', '2027-01-01')).toBe(1);
+    expect(diasEntre('2028-02-28', '2028-03-01')).toBe(2);
+    expect(diasEntre('2026-11-17', '2026-11-10')).toBe(-7);
+  });
+
+  it('fecha y hora local sin zona', () => {
+    expect(fechaHoraLocal(new Date(2026, 10, 17, 21, 5, 9))).toBe('2026-11-17T21:05:09');
   });
 });
