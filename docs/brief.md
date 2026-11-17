@@ -188,7 +188,7 @@ Formato: Dado, Cuando, Entonces. Cada criterio se verifica en la app andando.
 ### Transversales
 
 - **T-1 Montos.** Dado cualquier monto en pantalla, entonces se muestra con signo peso, sin decimales y con punto de miles (`$1.250.000`).
-- **T-2 Tamaños.** Dado cualquier pantalla al 100 % de zoom, entonces ningún texto mide menos de 16 px y todo control clicable mide 48 px de alto o más.
+- **T-2 Tamaños.** Dado cualquier pantalla al 100 % de zoom, entonces ningún texto mide menos de 13 px y todo control clicable mide 48 px de alto o más.
 - **T-3 Zoom.** Dado un zoom de 200 % en una ventana de 1280 px de ancho, entonces no hay contenido cortado ni desplazamiento horizontal de la página. Las tablas pueden desplazarse dentro de su caja.
 - **T-4 Teclado.** Dado que uso solo Tab, Enter y Espacio, entonces puedo hacer todas las acciones y el foco siempre se ve.
 - **T-5 Persistencia.** Dado que anoté datos y cerré la app, cuando la vuelvo a abrir, entonces veo los mismos datos.

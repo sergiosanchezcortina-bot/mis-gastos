@@ -1,6 +1,6 @@
 /*
   Estilos base. Los valores salen de tokens.css; no escribir colores ni tamaños sueltos.
-  Reglas: texto base 18 px, nada bajo 16 px, áreas clicables de 48 px o más.
+  Reglas: texto base 15 px, nada bajo 13 px, áreas clicables de 48 px o más.
 */
 
 *,
@@ -192,7 +192,7 @@ button:disabled {
 
 .subtitulo {
   margin: 0;
-  font-size: var(--texto-base);
+  font-size: var(--texto-subtitulo);
   line-height: 1.3;
   font-weight: var(--peso-cifra);
 }

@@ -1,7 +1,8 @@
 /*
   Variables de diseño de Mis gastos.
   Las pantallas de referencia en design/pantallas/ usan los tamaños de letra anteriores
-  (texto 20 px, mínimo 17 px). Desde el 17 de noviembre de 2026 rigen los de este archivo.
+  (texto 20 px, mínimo 17 px). Desde el 17 de noviembre de 2026 rigen los de este archivo:
+  texto 15 px y mínimo 13 px.
 */
 
 :root {
@@ -31,11 +32,12 @@
 
   /* Tipografía */
   --fuente: "DM Sans", system-ui, sans-serif;
-  --texto-base: 18px;                     /* texto y botones */
-  --texto-secundario: 16px;               /* mínimo absoluto */
-  --texto-titulo: 28px;                   /* título de pantalla, peso 400 */
-  --texto-cifra: 24px;                    /* cifras de tarjetas, peso 700 */
-  --texto-cifra-grande: 42px;             /* total del Resumen, peso 700 */
+  --texto-base: 15px;                     /* texto y botones */
+  --texto-secundario: 13px;               /* mínimo absoluto */
+  --texto-subtitulo: 17px;                /* títulos de sección, peso 700 */
+  --texto-titulo: 24px;                   /* título de pantalla, peso 400 */
+  --texto-cifra: 22px;                    /* cifras de tarjetas, peso 700 */
+  --texto-cifra-grande: 36px;             /* total del Resumen, peso 700 */
   --interlinea: 1.4;
   --peso-normal: 400;
   --peso-fuerte: 600;
