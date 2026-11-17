@@ -16,7 +16,7 @@ Si el brief y una pantalla de referencia se contradicen, manda el brief. Avísam
 
 1. Simple ante todo. Si una función no está en el brief, no se agrega. Pregunta antes.
 2. Todo el texto en español de Chile, tratando de tú. Montos en pesos chilenos, sin decimales y con punto de miles: `$12.500`.
-3. Texto base de 20 px y nada bajo 17 px. Toda área clicable mide 48 px de alto o más.
+3. Texto base de 18 px y nada bajo 16 px. Toda área clicable mide 48 px de alto o más.
 4. Cada acción se resuelve con un clic simple. Nada de doble clic, clic derecho, menús desplegables ocultos ni información que solo aparece al pasar el mouse. Arrastrar nunca es la única vía.
 5. Un estado nunca se comunica solo con color: siempre lleva texto o ícono.
 6. Los datos no salen del computador. Sin backend, sin analítica y sin llamadas a servicios externos.
