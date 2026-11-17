@@ -37,6 +37,11 @@ Si el brief y una pantalla de referencia se contradicen, manda el brief. Avísam
 - `npm run dev`: servidor local para desarrollo.
 - `npm test`: pruebas.
 - `npm run build`: genera el sitio en `dist/`.
+- `npm run preview`: abre la versión publicada en local, con funcionamiento sin conexión.
+- `npm run iconos`: vuelve a generar los íconos PNG desde `public/icono.svg`.
+- En desarrollo, `?datos=ejemplo` carga seis meses de datos de ejemplo y `?datos=vacio` deja la app vacía.
+
+Publicación e instalación: `docs/publicar.md` y `docs/instalacion.md`.
 
 ## Forma de trabajar
 
