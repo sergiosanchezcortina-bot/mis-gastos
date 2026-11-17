@@ -44,6 +44,8 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
   const elegirOpcion = (valor: OpcionDia) => {
     setOpcion(valor);
     setErrores(({ fecha: _, ...resto }) => resto);
+    // Al elegir "Otro día" el cursor pasa directo al selector de fecha.
+    if (valor === 'otro') setTimeout(() => campoFecha.current?.focus());
   };
 
   const enviar = async (evento: FormEvent) => {

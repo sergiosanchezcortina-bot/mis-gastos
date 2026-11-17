@@ -86,6 +86,16 @@ describe('NOR-A1: anotar un gasto', () => {
     expect(tabla()).toHaveTextContent('3 gastos, $6.000 en total');
   });
 
+  it('monto, clic en la categoría y Enter guarda aunque el foco quede en el botón', async () => {
+    const { usuario } = await abrirPantalla();
+    await usuario.type(campoMonto(), '4500');
+    await usuario.click(botonCategoria('Salud'));
+    botonCategoria('Salud').focus();
+    await usuario.keyboard('{Enter}');
+    await waitFor(() => expect(filas()).toHaveLength(1));
+    expect(filas()[0]).toHaveTextContent('Salud');
+  });
+
   it('Enter sobre un botón de categoría la elige y no guarda', async () => {
     const { usuario, db } = await abrirPantalla();
     await usuario.type(campoMonto(), '1000');
