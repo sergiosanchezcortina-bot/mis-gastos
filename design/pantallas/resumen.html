@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resumen del mes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#231f20}a:hover{color:#597103}
+</style>
+</head>
+<body>
+<div style="display: flex; flex-wrap: wrap; background: #ffffff; color: #231f20; font-family: 'DM Sans', system-ui, sans-serif; font-size: 20px; line-height: 1.4">
+
+<nav aria-label="Secciones de la app" style="flex: 1 1 320px; box-sizing: border-box; padding: 32px 16px; background: #f3f4f4; display: flex; flex-direction: column; gap: 8px">
+<div style="padding: 0 16px 16px; font-size: 20px; line-height: 1.3; font-weight: 700">Mis gastos</div>
+<a href="resumen.html" aria-current="page" style="display: flex; align-items: center; gap: 12px; min-height: 56px; box-sizing: border-box; padding: 12px 16px; border-radius: 8px; background: #abd037; color: #231f20; font-weight: 600; text-decoration: none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M4 20V11M12 20V4M20 20v-7"></path></svg><span>Resumen</span></a>
+<a href="gastos-recurrentes.html" style="display: flex; align-items: center; gap: 12px; min-height: 56px; box-sizing: border-box; padding: 12px 16px; border-radius: 8px; color: #231f20; text-decoration: none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M4 12a8 8 0 0 1 13.7-5.7L20 8.5M20 4v4.5h-4.5M20 12a8 8 0 0 1-13.7 5.7L4 15.5M4 20v-4.5h4.5"></path></svg><span>Gastos recurrentes</span></a>
+<a href="gastos-no-recurrentes.html" style="display: flex; align-items: center; gap: 12px; min-height: 56px; box-sizing: border-box; padding: 12px 16px; border-radius: 8px; color: #231f20; text-decoration: none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0-18zM12 8v8M8 12h8"></path></svg><span>Gastos no recurrentes</span></a>
+<a href="cartola.html" style="display: flex; align-items: center; gap: 12px; min-height: 56px; box-sizing: border-box; padding: 12px 16px; border-radius: 8px; color: #231f20; text-decoration: none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M12 16V4M7 9l5-5l5 5M4 20h16"></path></svg><span>Cartola</span></a>
+<a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 56px; box-sizing: border-box; margin-top: 16px; padding: 12px 16px; border-radius: 8px; color: #666666; text-decoration: none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4"></path></svg><span>Ajustes</span></a>
+</nav>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 32px 40px 48px">
+<div style="max-width: 1040px; display: flex; flex-direction: column; gap: 24px">
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<div style="display: flex; align-items: center; gap: 16px">
+<button type="button" aria-label="Mes anterior" style="width: 48px; height: 48px; padding: 0; border: 1px solid #231f20; border-radius: 999px; background: #ffffff; color: #231f20; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7l7 7"></path></svg></button>
+<h1 style="margin: 0; font-size: 32px; line-height: 1.2; font-weight: 400">Noviembre 2026</h1>
+<button type="button" aria-label="Mes siguiente" style="width: 48px; height: 48px; padding: 0; border: 1px solid #231f20; border-radius: 999px; background: #ffffff; color: #231f20; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7l-7 7"></path></svg></button>
+</div>
+<a href="gastos-no-recurrentes.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 56px; box-sizing: border-box; padding: 12px 28px; border-radius: 999px; background: #231f20; color: #ffffff; font-size: 20px; line-height: 1.2; font-weight: 600; text-decoration: none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M12 5v14M5 12h14"></path></svg>Agregar gasto</a>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 17px; color: #666666">Llevas gastado en noviembre</div>
+<div style="font-size: 50px; line-height: 1.1; font-weight: 700; letter-spacing: -0.01em">$487.500</div>
+<div>Vas $24.500 por debajo de octubre a esta misma fecha.</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<div style="flex: 1 1 240px; box-sizing: border-box; padding: 24px; border: 1px solid #e6e7e8; border-radius: 12px; display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 17px; color: #666666">Recurrentes pagados</div>
+<div style="font-size: 28px; line-height: 1; font-weight: 700">$210.000</div>
+<div style="font-size: 17px">3 de 6 pagados</div>
+<div style="height: 12px; border-radius: 999px; background: #f3f4f4"><div style="width: 50%; height: 12px; border-radius: 999px; background: #abd037"></div></div>
+</div>
+<div style="flex: 1 1 240px; box-sizing: border-box; padding: 24px; border: 1px solid #e6e7e8; border-radius: 12px; display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 17px; color: #666666">No recurrentes</div>
+<div style="font-size: 28px; line-height: 1; font-weight: 700">$277.500</div>
+<div style="font-size: 17px">14 gastos anotados</div>
+</div>
+<div style="flex: 1 1 240px; box-sizing: border-box; padding: 24px; border: 1px solid #e68f50; border-radius: 12px; background: #ffefe3; display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 17px">Te falta pagar</div>
+<div style="font-size: 28px; line-height: 1; font-weight: 700">$87.000</div>
+<a href="gastos-recurrentes.html" style="font-size: 17px; font-weight: 600; color: #231f20">Ver los 3 gastos pendientes</a>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px">
+
+<section style="flex: 3 1 420px; min-width: 0; box-sizing: border-box; padding: 24px; border: 1px solid #e6e7e8; border-radius: 12px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h2 style="margin: 0; font-size: 20px; line-height: 1.3; font-weight: 700">¿En qué se fue?</h2>
+<div style="font-size: 17px; color: #666666">Haz clic en una categoría para ver sus gastos.</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 12px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M4 12a8 8 0 0 1 13.7-5.7L20 8.5M20 4v4.5h-4.5M20 12a8 8 0 0 1-13.7 5.7L4 15.5M4 20v-4.5h4.5"></path></svg><span style="flex-grow: 1">Gastos recurrentes</span><span style="font-weight: 600">$210.000</span></div>
+<div style="height: 12px; border-radius: 999px; background: #f3f4f4"><div style="width: 100%; height: 12px; border-radius: 999px; background: #231f20"></div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 12px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M3 5h2l2.4 10h9.8L20 8H6.2M9 19.5h.01M17 19.5h.01"></path></svg><span style="flex-grow: 1">Supermercado</span><span style="font-weight: 600">$145.000</span></div>
+<div style="height: 12px; border-radius: 999px; background: #f3f4f4"><div style="width: 69%; height: 12px; border-radius: 999px; background: #231f20"></div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 12px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M7 4h10a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3zM12 8.5v7M8.5 12h7"></path></svg><span style="flex-grow: 1">Salud</span><span style="font-weight: 600">$52.000</span></div>
+<div style="height: 12px; border-radius: 999px; background: #f3f4f4"><div style="width: 25%; height: 12px; border-radius: 999px; background: #231f20"></div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 12px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M5 17v-5l2-5h10l2 5v5M3.5 17h17M7 17v2M17 17v2M8 13h.01M16 13h.01"></path></svg><span style="flex-grow: 1">Transporte</span><span style="font-weight: 600">$40.500</span></div>
+<div style="height: 12px; border-radius: 999px; background: #f3f4f4"><div style="width: 19%; height: 12px; border-radius: 999px; background: #231f20"></div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 12px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M5 8h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5zM16 10h1.5a2.5 2.5 0 0 1 0 5H16M6 21h9"></path></svg><span style="flex-grow: 1">Salidas</span><span style="font-weight: 600">$28.000</span></div>
+<div style="height: 12px; border-radius: 999px; background: #f3f4f4"><div style="width: 13%; height: 12px; border-radius: 999px; background: #231f20"></div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 12px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M6 12h.01M12 12h.01M18 12h.01"></path></svg><span style="flex-grow: 1">Otros</span><span style="font-weight: 600">$12.000</span></div>
+<div style="height: 12px; border-radius: 999px; background: #f3f4f4"><div style="width: 6%; height: 12px; border-radius: 999px; background: #231f20"></div></div>
+</div>
+</section>
+
+<section style="flex: 2 1 300px; min-width: 0; box-sizing: border-box; padding: 24px; border: 1px solid #e6e7e8; border-radius: 12px; display: flex; flex-direction: column; gap: 20px">
+<h2 style="margin: 0; font-size: 20px; line-height: 1.3; font-weight: 700">Mes a mes</h2>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; gap: 12px"><span style="flex-grow: 1">Agosto</span><span style="font-weight: 600">$655.000</span></div>
+<div style="height: 12px; border-radius: 999px; background: #f3f4f4"><div style="width: 88%; height: 12px; border-radius: 999px; background: #231f20"></div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; gap: 12px"><span style="flex-grow: 1">Septiembre</span><span style="font-weight: 600">$698.000</span></div>
+<div style="height: 12px; border-radius: 999px; background: #f3f4f4"><div style="width: 94%; height: 12px; border-radius: 999px; background: #231f20"></div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; gap: 12px"><span style="flex-grow: 1">Octubre</span><span style="font-weight: 600">$742.000</span></div>
+<div style="height: 12px; border-radius: 999px; background: #f3f4f4"><div style="width: 100%; height: 12px; border-radius: 999px; background: #231f20"></div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; gap: 12px"><span style="flex-grow: 1">Noviembre, hasta hoy</span><span style="font-weight: 600">$487.500</span></div>
+<div style="height: 12px; border-radius: 999px; background: #f3f4f4"><div style="width: 66%; height: 12px; border-radius: 999px; background: #abd037"></div></div>
+</div>
+</section>
+
+</div>
+
+</div>
+</main>
+
+</div>
+</body>
+</html>
