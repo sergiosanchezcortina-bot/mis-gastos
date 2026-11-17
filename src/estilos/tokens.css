@@ -57,8 +57,9 @@
 
   /* Tamaños */
   --alto-minimo-clic: 48px;
-  --alto-boton: 56px;
-  --alto-boton-grande: 64px;              /* botones de día y de categoría, campo de monto */
-  --ancho-menu: 320px;
+  --alto-boton: 48px;
+  --tamano-icono: 20px;
+  --alto-boton-grande: 48px;              /* botones de día y de categoría, campo de monto */
+  --ancho-menu: 260px;
   --ancho-contenido: 1040px;              /* ancho máximo de la columna principal */
 }

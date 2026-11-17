@@ -49,6 +49,8 @@ button:disabled {
 
 .icono {
   flex-shrink: 0;
+  width: var(--tamano-icono);
+  height: var(--tamano-icono);
 }
 
 /* ---------- Estructura ---------- */
@@ -63,8 +65,8 @@ button:disabled {
   flex: 1 1 var(--ancho-menu);
   display: flex;
   flex-direction: column;
-  gap: var(--espacio-2);
-  padding: var(--espacio-8) var(--espacio-4);
+  gap: var(--espacio-1);
+  padding: var(--espacio-6) var(--espacio-3);
   background: var(--color-fondo-suave);
 }
 
@@ -94,9 +96,9 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: var(--espacio-3);
-  min-height: var(--alto-boton);
+  min-height: var(--alto-minimo-clic);
   width: 100%;
-  padding: var(--espacio-3) var(--espacio-4);
+  padding: var(--espacio-2) var(--espacio-3);
   border: 0;
   border-radius: var(--radio-control);
   background: transparent;
@@ -213,7 +215,7 @@ button:disabled {
   justify-content: center;
   gap: var(--espacio-2);
   min-height: var(--alto-boton);
-  padding: var(--espacio-3) 28px;
+  padding: var(--espacio-2) var(--espacio-6);
   border-radius: var(--radio-pildora);
   font-size: var(--texto-base);
   line-height: 1.2;
@@ -227,7 +229,7 @@ button:disabled {
 }
 
 .boton-secundario {
-  padding: var(--espacio-3) var(--espacio-6);
+  padding: var(--espacio-2) var(--espacio-4);
   border: 1px solid var(--color-borde-control);
   background: var(--color-fondo);
   color: var(--color-texto);
@@ -258,7 +260,7 @@ button:disabled {
 /* ---------- Campos ---------- */
 
 .campo {
-  height: 52px;
+  height: var(--alto-minimo-clic);
   padding: 0 var(--espacio-3);
   border: 1px solid var(--color-borde-control);
   border-radius: var(--radio-control);
@@ -303,9 +305,9 @@ button:disabled {
 }
 
 .campo-monto--grande .campo {
-  width: 240px;
+  width: 200px;
   height: var(--alto-boton-grande);
-  padding: 0 var(--espacio-4);
+  padding: 0 var(--espacio-3);
   font-size: var(--texto-titulo);
   font-weight: var(--peso-cifra);
   text-align: left;
@@ -461,8 +463,8 @@ button:disabled {
 }
 
 .casilla input {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   margin: 0;
   accent-color: var(--color-texto);
   cursor: pointer;
@@ -496,8 +498,8 @@ button:disabled {
 }
 
 .estado .icono {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
 }
 
 .estado--pagado {
@@ -639,7 +641,7 @@ button:disabled {
 }
 
 .opcion--pildora {
-  padding: var(--espacio-3) var(--espacio-6);
+  padding: var(--espacio-2) var(--espacio-4);
   border-radius: var(--radio-pildora);
 }
 
@@ -649,9 +651,9 @@ button:disabled {
 }
 
 .opcion--categoria {
-  flex: 1 1 190px;
-  gap: var(--espacio-3);
-  padding: var(--espacio-3) var(--espacio-4);
+  flex: 1 1 160px;
+  gap: var(--espacio-2);
+  padding: var(--espacio-2) var(--espacio-3);
   border-radius: var(--radio-control);
   text-align: left;
 }
