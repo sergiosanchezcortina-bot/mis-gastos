@@ -49,11 +49,17 @@ export function FilaRecurrente({ fila, hoy, editandoLista, alMarcar, alCambiarMo
         </label>
         {editandoLista && (
           <div className="fila-recurrente__acciones">
-            <button type="button" className="boton-enlace" onClick={alCambiarNombreODia}>
-              Cambiar nombre o día<span className="solo-lector"> de {gasto.nombre}</span>
+            {/* El nombre completo empieza con el texto visible, para el control por voz. */}
+            <button
+              type="button"
+              className="boton-enlace"
+              aria-label={`Cambiar nombre o día de ${gasto.nombre}`}
+              onClick={alCambiarNombreODia}
+            >
+              Cambiar nombre o día
             </button>
-            <button type="button" className="boton-enlace" onClick={alQuitar}>
-              Quitar<span className="solo-lector"> {gasto.nombre}</span>
+            <button type="button" className="boton-enlace" aria-label={`Quitar ${gasto.nombre}`} onClick={alQuitar}>
+              Quitar
             </button>
           </div>
         )}

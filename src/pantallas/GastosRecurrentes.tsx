@@ -89,9 +89,11 @@ export function GastosRecurrentes() {
   const quitar = async (fila: Fila) => {
     setPorQuitar(null);
     const deshacer = await quitarRecurrente(db, fila.gasto.id, mesSeleccionado);
-    await cargar();
-    await actualizarLimites();
+    const leidas = await leerMesRecurrentes(db, mesSeleccionado, mesActual);
+    // La fila desaparece y el aviso aparece en el mismo momento.
+    setFilas(leidas);
     setAviso({ texto: `Se quitó ${fila.gasto.nombre}.`, deshacer });
+    await actualizarLimites();
   };
 
   const deshacerUltimo = async () => {
