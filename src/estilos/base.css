@@ -174,3 +174,418 @@ button:disabled {
   border-color: var(--color-divisor);
   color: var(--color-divisor);
 }
+
+/* ---------- Utilidades ---------- */
+
+/* Texto que solo leen los lectores de pantalla. */
+.solo-lector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.subtitulo {
+  margin: 0;
+  font-size: var(--texto-base);
+  line-height: 1.3;
+  font-weight: var(--peso-cifra);
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-6);
+}
+
+/* ---------- Botones ---------- */
+
+.boton-principal,
+.boton-secundario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espacio-2);
+  min-height: var(--alto-boton);
+  padding: var(--espacio-3) 28px;
+  border-radius: var(--radio-pildora);
+  font-size: var(--texto-base);
+  line-height: 1.2;
+  font-weight: var(--peso-fuerte);
+}
+
+.boton-principal {
+  border: 0;
+  background: var(--color-accion);
+  color: var(--color-accion-texto);
+}
+
+.boton-secundario {
+  padding: var(--espacio-3) var(--espacio-6);
+  border: 1px solid var(--color-borde-control);
+  background: var(--color-fondo);
+  color: var(--color-texto);
+}
+
+.boton-secundario:hover {
+  background: var(--color-fondo-suave);
+}
+
+/* Acción secundaria con aspecto de enlace. Mide 48 px de alto aunque se vea como texto. */
+.boton-enlace {
+  min-height: var(--alto-minimo-clic);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-texto);
+  font-size: var(--texto-secundario);
+  font-weight: var(--peso-fuerte);
+  text-decoration: underline;
+  text-align: left;
+}
+
+.boton-enlace:hover {
+  color: var(--color-acento-texto);
+}
+
+/* ---------- Campos ---------- */
+
+.campo {
+  height: 52px;
+  padding: 0 var(--espacio-3);
+  border: 1px solid var(--color-borde-control);
+  border-radius: var(--radio-control);
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font-size: var(--texto-base);
+}
+
+.campo[aria-invalid='true'] {
+  border-width: 2px;
+  border-color: var(--color-alerta-borde);
+}
+
+.campo--texto {
+  width: 100%;
+  max-width: 360px;
+}
+
+.campo--dia {
+  width: 96px;
+}
+
+.campo-monto {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+}
+
+.campo-monto .campo {
+  width: 150px;
+  text-align: right;
+}
+
+.campo-monto--grande .campo {
+  height: var(--alto-boton-grande);
+  width: 220px;
+}
+
+.campo-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+}
+
+.campo-grupo > label {
+  font-weight: var(--peso-fuerte);
+}
+
+.ayuda {
+  font-size: var(--texto-secundario);
+  color: var(--color-texto-secundario);
+}
+
+.mensaje-error {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  font-size: var(--texto-secundario);
+  font-weight: var(--peso-fuerte);
+  color: var(--color-alerta-texto);
+}
+
+/* ---------- Tarjetas y barras ---------- */
+
+.tarjetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-4);
+}
+
+.tarjeta {
+  flex: 1 1 240px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+  padding: var(--espacio-6);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-tarjeta);
+}
+
+.tarjeta--alerta {
+  border-color: var(--color-alerta-borde);
+  background: var(--color-alerta-fondo);
+}
+
+.tarjeta__titulo {
+  font-size: var(--texto-secundario);
+  color: var(--color-texto-secundario);
+}
+
+.tarjeta--alerta .tarjeta__titulo {
+  color: var(--color-texto);
+}
+
+.tarjeta__cifra {
+  font-size: var(--texto-cifra);
+  line-height: 1;
+  font-weight: var(--peso-cifra);
+}
+
+.tarjeta__detalle {
+  font-size: var(--texto-secundario);
+}
+
+.barra {
+  height: 12px;
+  border-radius: var(--radio-pildora);
+  background: var(--color-fondo-suave);
+}
+
+.barra__relleno {
+  height: 12px;
+  border-radius: var(--radio-pildora);
+  background: var(--color-barra);
+}
+
+.barra__relleno--acento {
+  background: var(--color-barra-actual);
+}
+
+/* ---------- Tabla ---------- */
+
+.tabla {
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-tarjeta);
+  overflow-x: auto;
+}
+
+.tabla__contenido {
+  min-width: 560px;
+}
+
+.tabla__encabezado,
+.fila-recurrente {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-4);
+  padding: 14px var(--espacio-6);
+}
+
+.tabla__encabezado {
+  padding-top: var(--espacio-3);
+  padding-bottom: var(--espacio-3);
+  background: var(--color-fondo-suave);
+  font-size: var(--texto-secundario);
+  font-weight: var(--peso-fuerte);
+  color: var(--color-texto-secundario);
+}
+
+.fila-recurrente,
+.tabla__formulario {
+  border-top: 1px solid var(--color-divisor);
+}
+
+.tabla__formulario {
+  padding: var(--espacio-6);
+  background: var(--color-fondo-suave);
+}
+
+.tabla__col-pagado {
+  width: 88px;
+  flex-shrink: 0;
+}
+
+.tabla__col-gasto {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.tabla__col-monto {
+  width: 176px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.casilla {
+  width: var(--alto-minimo-clic);
+  height: var(--alto-minimo-clic);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -8px;
+  cursor: pointer;
+}
+
+.casilla input {
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  accent-color: var(--color-texto);
+  cursor: pointer;
+}
+
+.fila-recurrente__nombre {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: var(--alto-minimo-clic);
+  justify-content: center;
+  cursor: pointer;
+}
+
+.fila-recurrente__titulo {
+  font-weight: var(--peso-fuerte);
+}
+
+.fila-recurrente__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-6);
+}
+
+.estado {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1);
+  font-size: var(--texto-secundario);
+  color: var(--color-texto-secundario);
+}
+
+.estado .icono {
+  width: 20px;
+  height: 20px;
+}
+
+.estado--pagado {
+  color: var(--color-acento-texto);
+}
+
+.estado--alerta {
+  color: var(--color-alerta-texto);
+  font-weight: var(--peso-fuerte);
+}
+
+/* ---------- Formulario de gasto recurrente ---------- */
+
+.formulario-recurrente {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-6);
+}
+
+.formulario-recurrente__campos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--espacio-6);
+}
+
+.formulario-recurrente__campos > .campo-grupo:first-child {
+  flex: 1 1 280px;
+}
+
+/* El formulario de agregar va en su propia caja, igual que las tarjetas. */
+.contenido__columna > .formulario-recurrente,
+.vacio > .formulario-recurrente {
+  padding: var(--espacio-6);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-tarjeta);
+}
+
+/* ---------- Estado vacío ---------- */
+
+.vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--espacio-4);
+  padding: var(--espacio-8) var(--espacio-6);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-tarjeta);
+}
+
+.vacio > .formulario-recurrente {
+  align-self: stretch;
+}
+
+.vacio p {
+  margin: 0;
+}
+
+/* ---------- Aviso con "Deshacer" ---------- */
+
+.aviso {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-4);
+  padding: var(--espacio-2) var(--espacio-6);
+  border: 1px solid var(--color-borde-control);
+  border-radius: var(--radio-tarjeta);
+  background: var(--color-fondo-suave);
+}
+
+/* ---------- Diálogo de confirmación ---------- */
+
+.dialogo__fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espacio-4);
+  background: rgb(35 31 32 / 0.5);
+}
+
+.dialogo {
+  width: 100%;
+  max-width: 560px;
+  max-height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-6);
+  padding: var(--espacio-8);
+  border-radius: var(--radio-tarjeta);
+  background: var(--color-fondo);
+}
+
+.dialogo__mensaje {
+  margin: 0;
+}
+
+.dialogo__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-4);
+}
