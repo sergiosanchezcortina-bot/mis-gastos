@@ -1,0 +1,63 @@
+/*
+  Variables de diseño de Mis gastos.
+  Son las mismas que usan las pantallas de referencia en design/pantallas/.
+*/
+
+:root {
+  /* Color */
+  --color-texto: #231f20;
+  --color-texto-secundario: #666666;      /* 5.7:1 sobre blanco, 5.2:1 sobre fondo suave */
+  --color-fondo: #ffffff;
+  --color-fondo-suave: #f3f4f4;           /* barra lateral, encabezado de tabla, pista de barras */
+  --color-borde: #e6e7e8;                 /* borde de tarjetas, decorativo */
+  --color-divisor: #d4d4d4;               /* líneas entre filas */
+  --color-borde-control: #231f20;         /* borde de campos y botones secundarios */
+
+  --color-accion: #231f20;                /* fondo del botón principal */
+  --color-accion-texto: #ffffff;
+
+  --color-acento: #abd037;                /* solo como relleno, con texto #231f20. Nunca como texto sobre blanco */
+  --color-acento-texto: #597103;          /* verde legible sobre blanco: estado "Pagado", enlaces al pasar el mouse */
+
+  --color-alerta-texto: #b34a05;
+  --color-alerta-fondo: #ffefe3;
+  --color-alerta-borde: #e68f50;          /* solo borde, nunca texto */
+
+  --color-foco: #597103;                  /* anillo de foco: 2px, separado 2px */
+
+  --color-barra: #231f20;                 /* barras de "¿En qué se fue?" y "Mes a mes" */
+  --color-barra-actual: #abd037;          /* mes en curso y avance de pagados */
+
+  /* Tipografía */
+  --fuente: "DM Sans", system-ui, sans-serif;
+  --texto-base: 20px;                     /* texto y botones */
+  --texto-secundario: 17px;               /* mínimo absoluto */
+  --texto-titulo: 32px;                   /* título de pantalla, peso 400 */
+  --texto-cifra: 28px;                    /* cifras de tarjetas, peso 700 */
+  --texto-cifra-grande: 50px;             /* total del Resumen, peso 700 */
+  --interlinea: 1.4;
+  --peso-normal: 400;
+  --peso-fuerte: 600;
+  --peso-cifra: 700;
+
+  /* Espaciado */
+  --espacio-1: 4px;
+  --espacio-2: 8px;
+  --espacio-3: 12px;
+  --espacio-4: 16px;
+  --espacio-6: 24px;
+  --espacio-8: 32px;
+  --espacio-12: 48px;
+
+  /* Radios */
+  --radio-control: 8px;                   /* campos, botones de categoría, ítems del menú */
+  --radio-tarjeta: 12px;
+  --radio-pildora: 999px;                 /* botones de acción y barras */
+
+  /* Tamaños */
+  --alto-minimo-clic: 48px;
+  --alto-boton: 56px;
+  --alto-boton-grande: 64px;              /* botones de día y de categoría, campo de monto */
+  --ancho-menu: 320px;
+  --ancho-contenido: 1040px;              /* ancho máximo de la columna principal */
+}

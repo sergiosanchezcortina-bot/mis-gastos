@@ -1,0 +1,72 @@
+/**
+ * Modelo de datos. Ver docs/arquitectura.md, sección 2.1.
+ * Montos: enteros en pesos chilenos. Fechas: "AAAA-MM-DD". Meses: "AAAA-MM".
+ */
+
+export type ClaveIcono =
+  | 'supermercado'
+  | 'salud'
+  | 'transporte'
+  | 'casa'
+  | 'salidas'
+  | 'familia'
+  | 'ropa'
+  | 'otro';
+
+export type Categoria = {
+  id: string;
+  nombre: string;
+  icono: ClaveIcono;
+  visible: boolean;
+  orden: number;
+};
+
+/** Plantilla de un gasto que se repite cada mes. */
+export type GastoRecurrente = {
+  id: string;
+  nombre: string;
+  diaVencimiento: number | null; // 1 a 31
+  desde: string; // primer mes en que aplica
+  hasta: string | null; // último mes en que aplica; null = sigue vigente
+  palabrasClave: string[]; // fase 6
+  creadoEn: string; // fecha y hora ISO
+};
+
+/** Una fila por gasto recurrente y por mes. */
+export type PagoRecurrente = {
+  id: string;
+  gastoRecurrenteId: string;
+  mes: string;
+  monto: number | null; // null = falta el monto
+  pagado: boolean;
+  fechaPago: string | null;
+  origen: 'manual' | 'cartola';
+  movimientoId: string | null; // fase 6
+};
+
+/** Gasto no recurrente. */
+export type Gasto = {
+  id: string;
+  fecha: string;
+  monto: number; // entero mayor que 0
+  categoriaId: string;
+  origen: 'manual' | 'cartola';
+  glosa: string | null; // fase 6
+  movimientoId: string | null; // fase 6
+  creadoEn: string;
+  actualizadoEn: string;
+};
+
+export type Ajustes = {
+  versionEsquema: number;
+  ultimoRespaldo: string | null; // fecha y hora ISO
+};
+
+/** Todos los datos de la app. Es la misma forma que tendrá el respaldo. */
+export type DatosCompletos = {
+  categorias: Categoria[];
+  gastosRecurrentes: GastoRecurrente[];
+  pagosRecurrentes: PagoRecurrente[];
+  gastos: Gasto[];
+  ajustes: Ajustes;
+};
