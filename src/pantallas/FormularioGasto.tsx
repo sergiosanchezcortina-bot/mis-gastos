@@ -32,6 +32,15 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
   const [categoriaId, setCategoriaId] = useState<string | null>(inicial?.categoriaId ?? null);
   const [errores, setErrores] = useState<ErroresGasto>({});
   const guardando = useRef(false);
+  /**
+   * Queda en verdadero después de guardar y hasta que se cambie algún campo. El segundo
+   * clic de un doble clic puede llegar cuando el formulario todavía no se vacía en
+   * pantalla; así se ignora sin guardar otra vez ni mostrar errores (NOR-A7).
+   */
+  const recienGuardado = useRef(false);
+  const tocar = () => {
+    recienGuardado.current = false;
+  };
   const campoMonto = useRef<HTMLInputElement>(null);
   const campoFecha = useRef<HTMLInputElement>(null);
   const grupoCategorias = useRef<HTMLDivElement>(null);
@@ -42,6 +51,7 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
   }, []);
 
   const elegirOpcion = (valor: OpcionDia) => {
+    tocar();
     setOpcion(valor);
     setErrores(({ fecha: _, ...resto }) => resto);
     // Al elegir "Otro día" el cursor pasa directo al selector de fecha.
@@ -50,8 +60,8 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
 
   const enviar = async (evento: FormEvent) => {
     evento.preventDefault();
-    // Un segundo clic mientras se guarda no crea otro gasto (NOR-A7).
-    if (guardando.current) return;
+    // Un segundo clic mientras se guarda, o justo después, no crea otro gasto (NOR-A7).
+    if (guardando.current || recienGuardado.current) return;
 
     const fecha = fechaDeOpcion(opcion, hoy, otraFecha);
     const encontrados = validarGasto({ monto, fecha, categoriaId, hoy });
@@ -64,15 +74,16 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
     guardando.current = true;
     try {
       await alGuardar({ monto, fecha, categoriaId });
-      if (modo === 'agregar') {
-        setMonto(null);
-        setOpcion('hoy');
-        setOtraFecha('');
-        setCategoriaId(null);
-        campoMonto.current?.focus();
-      }
+      recienGuardado.current = true;
     } finally {
       guardando.current = false;
+    }
+    if (modo === 'agregar') {
+      setMonto(null);
+      setOpcion('hoy');
+      setOtraFecha('');
+      setCategoriaId(null);
+      campoMonto.current?.focus();
     }
   };
 
@@ -94,6 +105,7 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
             grande
             valor={monto}
             alCambiar={(valor) => {
+              tocar();
               setMonto(valor);
               setErrores(({ monto: _, ...resto }) => resto);
             }}
@@ -125,6 +137,7 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
                 max={hoy}
                 value={otraFecha}
                 onChange={(e) => {
+                  tocar();
                   setOtraFecha(e.target.value);
                   setErrores(({ fecha: _, ...resto }) => resto);
                 }}
@@ -149,6 +162,7 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
               icono={c.icono}
               elegido={categoriaId === c.id}
               alElegir={() => {
+                tocar();
                 setCategoriaId(c.id);
                 setErrores(({ categoria: _, ...resto }) => resto);
               }}

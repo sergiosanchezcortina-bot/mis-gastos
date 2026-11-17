@@ -294,6 +294,17 @@ describe('NOR-A7: doble clic', () => {
     await waitFor(() => expect(filas()).toHaveLength(1));
     expect(await leerGastos(db)).toHaveLength(1);
   });
+
+  it('un segundo clic justo después de guardar no guarda otro ni muestra error', async () => {
+    const { usuario, db } = await abrirPantalla();
+    await usuario.type(campoMonto(), '12500');
+    await usuario.click(botonCategoria('Supermercado'));
+    await usuario.click(guardar());
+    await waitFor(() => expect(filas()).toHaveLength(1));
+    await usuario.click(guardar());
+    expect(await leerGastos(db)).toHaveLength(1);
+    expect(screen.queryByText('Escribe cuánto gastaste')).not.toBeInTheDocument();
+  });
 });
 
 describe('NOR-A8: el campo de monto', () => {
