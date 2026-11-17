@@ -50,6 +50,7 @@ export function GastosRecurrentes() {
     let vigente = true;
     setFormulario(null);
     setAviso(null);
+    setEditandoLista(false);
     void leerMesRecurrentes(db, mesSeleccionado, mesActual).then((leidas) => {
       if (vigente) setFilas(leidas);
     });

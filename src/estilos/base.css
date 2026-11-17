@@ -240,6 +240,7 @@ button:disabled {
 /* Acción secundaria con aspecto de enlace. Mide 48 px de alto aunque se vea como texto. */
 .boton-enlace {
   min-height: var(--alto-minimo-clic);
+  min-width: var(--alto-minimo-clic);
   padding: 0;
   border: 0;
   background: none;
