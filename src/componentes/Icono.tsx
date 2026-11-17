@@ -16,6 +16,7 @@ const TRAZOS = {
   siguiente: 'M9 5l7 7l-7 7',
   agregar: 'M12 5v14M5 12h14',
   check: 'M5 12.5l4.5 4.5L19 7',
+  abajo: 'M6 9l6 6l6-6',
   alerta: 'M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0-18zM12 8v5M12 16.5h.01',
   // Categorías
   supermercado: 'M3 5h2l2.4 10h9.8L20 8H6.2M9 19.5h.01M17 19.5h.01',
