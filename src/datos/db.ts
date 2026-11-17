@@ -84,6 +84,14 @@ export async function leerAjustes(db: BaseDeDatos): Promise<Ajustes> {
   return (await db.get('ajustes', CLAVE_AJUSTES)) ?? ajustesIniciales();
 }
 
+export async function guardarCategoria(db: BaseDeDatos, categoria: Categoria): Promise<void> {
+  await db.put('categorias', categoria);
+}
+
+export async function guardarAjustes(db: BaseDeDatos, ajustes: Ajustes): Promise<void> {
+  await db.put('ajustes', ajustes, CLAVE_AJUSTES);
+}
+
 export async function guardarGasto(db: BaseDeDatos, gasto: Gasto): Promise<void> {
   await db.put('gastos', gasto);
 }
