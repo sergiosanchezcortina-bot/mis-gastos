@@ -769,3 +769,138 @@ button:disabled {
 .tabla__encabezado .fila-gasto__monto {
   font-weight: inherit;
 }
+
+/* ---------- Resumen ---------- */
+
+.total-mes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-1);
+}
+
+.total-mes__cifra {
+  font-size: var(--texto-cifra-grande);
+  line-height: 1.1;
+  font-weight: var(--peso-cifra);
+  letter-spacing: -0.01em;
+}
+
+/* El enlace de una tarjeta mide 48 px de alto sin agrandar la tarjeta más de la cuenta. */
+.tarjeta__detalle .boton-enlace {
+  margin: -12px 0;
+  color: var(--color-texto);
+}
+
+.paneles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--espacio-4);
+}
+
+.panel {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.panel--ancho {
+  flex: 3 1 420px;
+}
+
+.panel--angosto {
+  flex: 2 1 300px;
+}
+
+.panel__titulo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-1);
+}
+
+.lista-barras,
+.detalle-barra {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-barras {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-3);
+}
+
+.fila-barra {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+}
+
+.fila-barra--boton {
+  min-height: var(--alto-minimo-clic);
+  padding: var(--espacio-2);
+  margin: calc(-1 * var(--espacio-2));
+  width: calc(100% + 2 * var(--espacio-2));
+  border: 0;
+  border-radius: var(--radio-control);
+  background: none;
+  color: var(--color-texto);
+  text-align: left;
+}
+
+.fila-barra--boton:hover {
+  background: var(--color-fondo-suave);
+}
+
+.fila-barra--boton:hover .barra {
+  background: var(--color-borde);
+}
+
+.fila-barra__linea {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+}
+
+.fila-barra__nombre {
+  flex-grow: 1;
+}
+
+.fila-barra__monto {
+  font-weight: var(--peso-fuerte);
+}
+
+/* La flecha gira al abrir la fila: el estado se ve por forma, no por color. */
+.flecha {
+  display: flex;
+  transition: transform 0.15s;
+}
+
+.flecha--abierta {
+  transform: rotate(180deg);
+}
+
+.detalle-barra {
+  margin-top: var(--espacio-3);
+  padding: var(--espacio-2) var(--espacio-4);
+  border-left: 3px solid var(--color-borde-control);
+  background: var(--color-fondo-suave);
+  border-radius: 0 var(--radio-control) var(--radio-control) 0;
+}
+
+.detalle-barra li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espacio-4);
+  padding: var(--espacio-2) 0;
+}
+
+.detalle-barra li + li {
+  border-top: 1px solid var(--color-divisor);
+}
+
+.detalle-barra__monto {
+  font-weight: var(--peso-fuerte);
+}

@@ -27,7 +27,7 @@ export function App({ db, obtenerHoy }: Props) {
         <BarraLateral activa={pestana} alElegir={setPestana} />
         <main className="contenido">
           <div className="contenido__columna">
-            {pestana === 'resumen' && <Resumen />}
+            {pestana === 'resumen' && <Resumen irA={setPestana} />}
             {pestana === 'recurrentes' && <GastosRecurrentes />}
             {pestana === 'noRecurrentes' && <GastosNoRecurrentes />}
             {pestana === 'ajustes' && <Ajustes />}
