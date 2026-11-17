@@ -1,7 +1,7 @@
 /**
  * Lectura de todo lo que necesita el Resumen.
  */
-import type { Categoria, Gasto, GastoRecurrente, PagoRecurrente } from '../dominio/tipos';
+import type { Ajustes, Categoria, Gasto, GastoRecurrente, PagoRecurrente } from '../dominio/tipos';
 import { leerTodo, type BaseDeDatos } from './db';
 import { leerMesRecurrentes } from './recurrentes';
 
@@ -10,6 +10,7 @@ export type DatosResumen = {
   pagos: PagoRecurrente[];
   categorias: Categoria[];
   gastosRecurrentes: GastoRecurrente[];
+  ajustes: Ajustes;
 };
 
 /**
@@ -24,5 +25,6 @@ export async function leerDatosResumen(db: BaseDeDatos, mes: string, mesActual: 
     pagos: todo.pagosRecurrentes,
     categorias: [...todo.categorias].sort((a, b) => a.orden - b.orden),
     gastosRecurrentes: todo.gastosRecurrentes,
+    ajustes: todo.ajustes,
   };
 }

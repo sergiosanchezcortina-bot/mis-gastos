@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { AvisoRespaldo } from '../componentes/AvisoRespaldo';
 import { BarraAvance } from '../componentes/BarraAvance';
 import type { Pestana } from '../componentes/BarraLateral';
 import { Icono } from '../componentes/Icono';
 import { SelectorMes } from '../componentes/SelectorMes';
 import { Tarjeta } from '../componentes/Tarjeta';
+import { necesitaRespaldo } from '../dominio/avisoRespaldo';
 import { formatearMonto } from '../dominio/montos';
 import { avancePagados, textoPagados, totalesRecurrentes } from '../dominio/recurrentes';
 import {
@@ -19,6 +21,7 @@ import {
 } from '../dominio/resumen';
 import { leerDatosResumen, type DatosResumen } from '../datos/resumen';
 import { useMes } from '../estado/MesContext';
+import { descargarRespaldo } from '../respaldo/descargar';
 import { EnQueSeFue } from './EnQueSeFue';
 import { MesAMes } from './MesAMes';
 
@@ -30,29 +33,46 @@ export function Resumen({ irA }: Props) {
   const { db, hoy, mesActual, mesSeleccionado } = useMes();
   const [datos, setDatos] = useState<DatosResumen | null>(null);
 
+  const cargar = useCallback(
+    () => leerDatosResumen(db, mesSeleccionado, mesActual),
+    [db, mesSeleccionado, mesActual],
+  );
+
   useEffect(() => {
     let vigente = true;
-    void leerDatosResumen(db, mesSeleccionado, mesActual).then((leidos) => {
+    void cargar().then((leidos) => {
       if (vigente) setDatos(leidos);
     });
     return () => {
       vigente = false;
     };
-  }, [db, mesSeleccionado, mesActual]);
+  }, [cargar]);
+
+  const base = datos && { gastos: datos.gastos, pagos: datos.pagos };
 
   const encabezado = (
-    <div className="encabezado">
-      <SelectorMes comoTitulo />
-      <button type="button" className="boton-principal" onClick={() => irA('noRecurrentes')}>
-        <Icono nombre="agregar" />
-        Agregar gasto
-      </button>
-    </div>
+    <>
+      <div className="encabezado">
+        <SelectorMes comoTitulo />
+        <button type="button" className="boton-principal" onClick={() => irA('noRecurrentes')}>
+          <Icono nombre="agregar" />
+          Agregar gasto
+        </button>
+      </div>
+      {/* RES-9 */}
+      {datos && base && necesitaRespaldo(datos.ajustes.ultimoRespaldo, base, hoy) && (
+        <AvisoRespaldo
+          alHacerRespaldo={() => {
+            void descargarRespaldo(db).then(cargar).then(setDatos);
+          }}
+        />
+      )}
+    </>
   );
 
-  if (datos === null) return encabezado;
+  // Siempre la misma estructura, para que el encabezado no se vuelva a montar al cargar.
+  if (datos === null || base === null) return <>{encabezado}</>;
 
-  const base = { gastos: datos.gastos, pagos: datos.pagos };
   const mes = mesSeleccionado;
   const recurrentes = totalesRecurrentes(datos.pagos.filter((p) => p.mes === mes));
   const noRecurrentes = gastosDelMes(datos.gastos, mes);

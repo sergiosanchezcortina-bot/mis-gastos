@@ -904,3 +904,102 @@ button:disabled {
 .detalle-barra__monto {
   font-weight: var(--peso-fuerte);
 }
+
+/* ---------- Ajustes ---------- */
+
+.seccion-ajustes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-4);
+}
+
+.seccion-ajustes p {
+  margin: 0;
+}
+
+.nota {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  font-size: var(--texto-secundario);
+  font-weight: var(--peso-fuerte);
+}
+
+.lista-categorias {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.categoria {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-2) var(--espacio-4);
+  padding: var(--espacio-3) 0;
+}
+
+.categoria + .categoria {
+  border-top: 1px solid var(--color-divisor);
+}
+
+.categoria__nombre {
+  flex: 1 1 160px;
+  display: flex;
+  flex-direction: column;
+}
+
+.categoria__titulo {
+  font-weight: var(--peso-fuerte);
+}
+
+/* Oculta: el texto "Oculta" lo dice; además pierde la negrita para verse distinta sin color. */
+.categoria__titulo--oculta {
+  font-weight: var(--peso-normal);
+  color: var(--color-texto-secundario);
+}
+
+.categoria__acciones {
+  display: flex;
+  gap: var(--espacio-6);
+}
+
+.boton-enlace:disabled {
+  color: var(--color-texto-secundario);
+  text-decoration: line-through;
+  cursor: default;
+}
+
+.categoria__formulario {
+  flex: 1 1 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--espacio-4) var(--espacio-6);
+}
+
+.categoria__formulario .campo-grupo {
+  flex: 1 1 240px;
+}
+
+/* ---------- Aviso de respaldo en el Resumen ---------- */
+
+.aviso-respaldo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espacio-3) var(--espacio-4);
+  padding: var(--espacio-4) var(--espacio-6);
+  border: 1px solid var(--color-alerta-borde);
+  border-radius: var(--radio-tarjeta);
+  background: var(--color-alerta-fondo);
+}
+
+.aviso-respaldo > .icono {
+  color: var(--color-alerta-texto);
+}
+
+.aviso-respaldo__texto {
+  flex: 1 1 260px;
+  font-weight: var(--peso-fuerte);
+}
