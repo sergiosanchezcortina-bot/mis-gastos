@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Ícono de Mis gastos: cuadrado verde de acento con un signo peso negro. -->
+  <rect width="512" height="512" rx="112" fill="#abd037"/>
+  <g fill="none" stroke="#231f20" stroke-width="44" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M256 92v328"/>
+    <path d="M340 170c-8-30-40-46-84-46c-50 0-86 24-86 62c0 40 38 54 86 64c50 10 90 24 90 68c0 40-38 66-90 66c-48 0-82-18-92-52"/>
+  </g>
+</svg>

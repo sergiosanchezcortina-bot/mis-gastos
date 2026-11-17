@@ -1,14 +1,15 @@
 {
   "name": "mis-gastos",
   "private": true,
-  "version": "0.4.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "iconos": "pwa-assets-generator"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",
@@ -23,11 +24,13 @@
     "@testing-library/user-event": "^14.6.12",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@vite-pwa/assets-generator": "^2.0.0",
     "@vitejs/plugin-react": "^6.3.0",
     "fake-indexeddb": "^6.2.8",
     "jsdom": "^29.1.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
     "vitest": "^4.1.12"
   }
 }
