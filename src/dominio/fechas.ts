@@ -119,6 +119,25 @@ export function nombreDiaSemana(fecha: string): string {
   return nombre;
 }
 
+/** Fecha y hora local sin zona horaria: "2026-11-17T21:30:00". */
+export function fechaHoraLocal(ahora: Date = new Date()): string {
+  const hora = [ahora.getHours(), ahora.getMinutes(), ahora.getSeconds()].map((n) => String(n).padStart(2, '0')).join(':');
+  return `${fechaLocal(ahora)}T${hora}`;
+}
+
+/** Fecha para leer: "17 de noviembre de 2026". */
+export function fechaLarga(fecha: string): string {
+  const { anio, mes, dia } = partesFecha(fecha);
+  return `${dia} de ${nombreMes(`${anio}-${String(mes).padStart(2, '0')}`)} de ${anio}`;
+}
+
+/** Días completos de `desde` a `hasta` (negativo si `hasta` es anterior). Sin horas ni zonas. */
+export function diasEntre(desde: string, hasta: string): number {
+  const a = partesFecha(desde);
+  const b = partesFecha(hasta);
+  return Math.round((Date.UTC(b.anio, b.mes - 1, b.dia) - Date.UTC(a.anio, a.mes - 1, a.dia)) / 86_400_000);
+}
+
 /** Último día de un mes como fecha: "2026-11" -> "2026-11-30". */
 export function ultimaFechaDelMes(mes: string): string {
   return `${mes}-${String(diasDelMes(mes)).padStart(2, '0')}`;
