@@ -21,7 +21,10 @@ export type Categoria = {
   orden: number;
 };
 
-/** Plantilla de un gasto que se repite cada mes. */
+/** Cada cuántos meses se repite un gasto recurrente (fase 8). */
+export type CadaMeses = 1 | 2 | 3 | 6 | 12;
+
+/** Plantilla de un gasto que se repite. */
 export type GastoRecurrente = {
   id: string;
   nombre: string;
@@ -30,6 +33,8 @@ export type GastoRecurrente = {
   hasta: string | null; // último mes en que aplica; null = sigue vigente
   palabrasClave: string[]; // fase 6
   creadoEn: string; // fecha y hora ISO
+  cadaMeses: CadaMeses; // fase 8; 1 = cada mes
+  ancla: string; // mes desde el que se cuenta la repetición (AAAA-MM)
 };
 
 /** Una fila por gasto recurrente y por mes. */

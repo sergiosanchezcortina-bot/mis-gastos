@@ -1,7 +1,7 @@
 import { CampoMonto } from '../componentes/CampoMonto';
 import { MensajeError } from '../componentes/MensajeError';
 import { Icono } from '../componentes/Icono';
-import { esAlerta, estadoFila, textoEstado } from '../dominio/recurrentes';
+import { esAlerta, estadoFila, textoEstado, textoRepeticion } from '../dominio/recurrentes';
 import type { FilaRecurrente as Fila } from '../datos/recurrentes';
 
 type Props = {
@@ -56,7 +56,10 @@ export function FilaRecurrente({
       <div className="tabla__col-gasto">
         {/* Hacer clic en el nombre también marca o desmarca (REC-4). */}
         <label htmlFor={idCasilla} className="fila-recurrente__nombre">
-          <span className="fila-recurrente__titulo">{gasto.nombre}</span>
+          <span className="fila-recurrente__titulo">
+            {gasto.nombre}
+            {gasto.cadaMeses !== 1 && <span className="fila-recurrente__repeticion"> · {textoRepeticion(gasto.cadaMeses)}</span>}
+          </span>
           <span
             id={idEstado}
             className={`estado ${alerta ? 'estado--alerta' : pago.pagado ? 'estado--pagado' : ''}`.trim()}
@@ -71,10 +74,10 @@ export function FilaRecurrente({
             <button
               type="button"
               className="boton-enlace"
-              aria-label={`Cambiar nombre o día de ${gasto.nombre}`}
+              aria-label={`Cambiar nombre, día o repetición de ${gasto.nombre}`}
               onClick={alCambiarNombreODia}
             >
-              Cambiar nombre o día
+              Cambiar nombre, día o repetición
             </button>
             <button type="button" className="boton-enlace" aria-label={`Quitar ${gasto.nombre}`} onClick={alQuitar}>
               Quitar

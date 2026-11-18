@@ -1,23 +1,28 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { CampoMonto } from '../componentes/CampoMonto';
+import { BotonOpcion } from '../componentes/BotonOpcion';
 import { MensajeError } from '../componentes/MensajeError';
-import { validarFormulario, type ErroresFormulario } from '../dominio/recurrentes';
+import { fraseRepeticion, REPETICIONES, validarFormulario, type ErroresFormulario } from '../dominio/recurrentes';
+import type { CadaMeses } from '../dominio/tipos';
 
-export type DatosRecurrente = { nombre: string; diaVencimiento: number | null; monto: number | null };
+export type DatosRecurrente = { nombre: string; diaVencimiento: number | null; monto: number | null; cadaMeses: CadaMeses };
 
 type Props = {
-  /** "agregar" pide nombre, día y monto; "editar" solo nombre y día. */
+  /** "agregar" pide nombre, día, repetición y monto; "editar" no pide monto. */
   modo: 'agregar' | 'editar';
-  inicial?: { nombre: string; diaVencimiento: number | null };
+  inicial?: { nombre: string; diaVencimiento: number | null; cadaMeses: CadaMeses; ancla: string };
+  /** El mes que se está viendo: desde ahí se cuenta una repetición nueva. */
+  mes: string;
   alGuardar: (datos: DatosRecurrente) => void;
   alCancelar: () => void;
 };
 
-export function FormularioRecurrente({ modo, inicial, alGuardar, alCancelar }: Props) {
+export function FormularioRecurrente({ modo, inicial, mes, alGuardar, alCancelar }: Props) {
   const id = useId();
   const [nombre, setNombre] = useState(inicial?.nombre ?? '');
   const [dia, setDia] = useState(inicial?.diaVencimiento != null ? String(inicial.diaVencimiento) : '');
   const [monto, setMonto] = useState<number | null>(null);
+  const [cadaMeses, setCadaMeses] = useState<CadaMeses>(inicial?.cadaMeses ?? 1);
   const [errores, setErrores] = useState<ErroresFormulario>({});
   const campoNombre = useRef<HTMLInputElement>(null);
   const campoDia = useRef<HTMLInputElement>(null);
@@ -32,10 +37,13 @@ export function FormularioRecurrente({ modo, inicial, alGuardar, alCancelar }: P
     setErrores(resultado.errores);
     if (resultado.errores.nombre) return campoNombre.current?.focus();
     if (resultado.errores.dia) return campoDia.current?.focus();
-    alGuardar({ nombre: resultado.nombre, diaVencimiento: resultado.dia, monto });
+    alGuardar({ nombre: resultado.nombre, diaVencimiento: resultado.dia, monto, cadaMeses });
   };
 
-  const titulo = modo === 'agregar' ? 'Agregar gasto recurrente' : 'Cambiar nombre o día';
+  const titulo = modo === 'agregar' ? 'Agregar gasto recurrente' : 'Cambiar nombre, día o repetición';
+  // Si la repetición no cambia, se sigue contando desde el ancla de antes.
+  const ancla = inicial && inicial.cadaMeses === cadaMeses ? inicial.ancla : mes;
+  const diaValido = /^\d{1,2}$/.test(dia) && Number(dia) >= 1 && Number(dia) <= 31 ? Number(dia) : null;
 
   return (
     <form className="formulario-recurrente" onSubmit={enviar} noValidate aria-label={titulo}>
@@ -89,6 +97,21 @@ export function FormularioRecurrente({ modo, inicial, alGuardar, alCancelar }: P
             </div>
           </div>
         )}
+        <div className="campo-grupo campo-grupo--ancho">
+          <div id={`${id}-repeticion`} className="campo-grupo__titulo">
+            ¿Cada cuánto se repite?
+          </div>
+          <div className="opciones" role="group" aria-labelledby={`${id}-repeticion`}>
+            {REPETICIONES.map((r) => (
+              <BotonOpcion key={r.cada} forma="pildora" elegido={cadaMeses === r.cada} alElegir={() => setCadaMeses(r.cada)}>
+                {r.texto}
+              </BotonOpcion>
+            ))}
+          </div>
+          <div className="frase-repeticion" aria-live="polite">
+            {fraseRepeticion(cadaMeses, diaValido, ancla)}
+          </div>
+        </div>
       </div>
       <div className="acciones">
         <button type="submit" className="boton-principal">

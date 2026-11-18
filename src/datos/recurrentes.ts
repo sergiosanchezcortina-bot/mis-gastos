@@ -1,7 +1,7 @@
 /**
  * Lectura y escritura de gastos recurrentes. Las reglas viven en dominio/recurrentes.ts.
  */
-import type { Comprobante, GastoRecurrente, PagoRecurrente } from '../dominio/tipos';
+import type { CadaMeses, Comprobante, GastoRecurrente, PagoRecurrente } from '../dominio/tipos';
 import { compararPorVencimiento, filasQueFaltan, planQuitar } from '../dominio/recurrentes';
 import type { BaseDeDatos } from './db';
 
@@ -39,7 +39,7 @@ export async function guardarPago(db: BaseDeDatos, pago: PagoRecurrente): Promis
 /** Crea el gasto desde el mes seleccionado, con su fila de ese mes (REC-8). */
 export async function agregarRecurrente(
   db: BaseDeDatos,
-  datos: { nombre: string; diaVencimiento: number | null; monto: number | null },
+  datos: { nombre: string; diaVencimiento: number | null; monto: number | null; cadaMeses?: CadaMeses },
   mes: string,
 ): Promise<FilaRecurrente> {
   const gasto: GastoRecurrente = {
@@ -50,6 +50,8 @@ export async function agregarRecurrente(
     hasta: null,
     palabrasClave: [],
     creadoEn: new Date().toISOString(),
+    cadaMeses: datos.cadaMeses ?? 1,
+    ancla: mes,
   };
   const pago: PagoRecurrente = {
     id: crypto.randomUUID(),
@@ -68,13 +70,19 @@ export async function agregarRecurrente(
   return { gasto, pago };
 }
 
-/** Cambia nombre o día. Vale para todos los meses, porque cambia la plantilla. */
+/**
+ * Cambia nombre, día o repetición. Vale para todos los meses, porque cambia la plantilla.
+ * Si cambia la repetición, se cuenta desde `mes` (el mes que se está viendo).
+ */
 export async function editarRecurrente(
   db: BaseDeDatos,
   gasto: GastoRecurrente,
-  cambios: { nombre: string; diaVencimiento: number | null },
+  cambios: { nombre: string; diaVencimiento: number | null; cadaMeses?: CadaMeses },
+  mes: string = gasto.ancla,
 ): Promise<GastoRecurrente> {
-  const editado = { ...gasto, ...cambios };
+  const cadaMeses = cambios.cadaMeses ?? gasto.cadaMeses;
+  const ancla = cadaMeses === gasto.cadaMeses ? gasto.ancla : mes;
+  const editado: GastoRecurrente = { ...gasto, ...cambios, cadaMeses, ancla };
   await db.put('gastosRecurrentes', editado);
   return editado;
 }

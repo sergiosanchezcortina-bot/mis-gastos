@@ -125,3 +125,23 @@ describe('comprobantes (REC-12)', () => {
     db.close();
   });
 });
+
+describe('repetición (REC-13)', () => {
+  it('agregar guarda la repetición con el mes como ancla', async () => {
+    const db = await abrirBase(nombreNuevo());
+    const { gasto } = await agregarRecurrente(db, { nombre: 'Seguro', diaVencimiento: 10, monto: 1, cadaMeses: 12 }, '2026-11');
+    expect(gasto).toMatchObject({ cadaMeses: 12, ancla: '2026-11' });
+    expect(await leerMesRecurrentes(db, '2026-12', '2026-12')).toEqual([]);
+    db.close();
+  });
+
+  it('cambiar la repetición la cuenta desde el mes que se está viendo; cambiar solo el nombre no', async () => {
+    const db = await abrirBase(nombreNuevo());
+    const { gasto } = await agregarRecurrente(db, { nombre: 'Gas', diaVencimiento: 25, monto: 1 }, '2026-06');
+    const trimestral = await editarRecurrente(db, gasto, { nombre: 'Gas', diaVencimiento: 25, cadaMeses: 3 }, '2026-11');
+    expect(trimestral).toMatchObject({ cadaMeses: 3, ancla: '2026-11' });
+    const renombrado = await editarRecurrente(db, trimestral, { nombre: 'Gas licuado', diaVencimiento: 25 }, '2027-01');
+    expect(renombrado).toMatchObject({ cadaMeses: 3, ancla: '2026-11' });
+    db.close();
+  });
+});

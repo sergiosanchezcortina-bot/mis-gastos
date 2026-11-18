@@ -2,12 +2,60 @@
  * Reglas de los gastos recurrentes. Ver docs/arquitectura.md, sección 2.2,
  * y brief REC-1 a REC-11. Todo son funciones puras.
  */
-import type { GastoRecurrente, PagoRecurrente } from './tipos';
-import { diasDelMes, mesAnterior, mesDeFecha } from './fechas';
+import type { CadaMeses, GastoRecurrente, PagoRecurrente } from './tipos';
+import { diasDelMes, mesAnterior, mesDeFecha, mesesEntre, mesSiguiente, nombreMes } from './fechas';
 
-/** Un gasto aplica en un mes si desde <= mes y (hasta vacío o hasta >= mes). */
+/**
+ * Un gasto aplica en un mes si desde <= mes, (hasta vacío o hasta >= mes) y,
+ * según su repetición, le toca ese mes (REC-13).
+ */
 export function vigenteEn(gasto: GastoRecurrente, mes: string): boolean {
-  return gasto.desde <= mes && (gasto.hasta === null || gasto.hasta >= mes);
+  return gasto.desde <= mes && (gasto.hasta === null || gasto.hasta >= mes) && tocaEn(gasto, mes);
+}
+
+// ---------- Repetición (REC-13) ----------
+
+export const REPETICIONES: ReadonlyArray<{ cada: CadaMeses; texto: string }> = [
+  { cada: 1, texto: 'Cada mes' },
+  { cada: 2, texto: 'Cada 2 meses' },
+  { cada: 3, texto: 'Cada 3 meses' },
+  { cada: 6, texto: 'Cada 6 meses' },
+  { cada: 12, texto: 'Cada año' },
+];
+
+export function textoRepeticion(cada: CadaMeses): string {
+  return REPETICIONES.find((r) => r.cada === cada)?.texto ?? 'Cada mes';
+}
+
+/** Le toca el mes si la distancia desde el ancla es múltiplo de la repetición. */
+export function tocaEn(gasto: Pick<GastoRecurrente, 'cadaMeses' | 'ancla'>, mes: string): boolean {
+  const distancia = mesesEntre(gasto.ancla, mes);
+  return ((distancia % gasto.cadaMeses) + gasto.cadaMeses) % gasto.cadaMeses === 0;
+}
+
+/** Los meses del año en que toca, empezando por el ancla: ["noviembre", "febrero", ...]. */
+export function mesesQueToca(cada: CadaMeses, ancla: string): string[] {
+  const meses: string[] = [];
+  let mes = ancla;
+  for (let i = 0; i < 12; i++) {
+    if (i % cada === 0) meses.push(nombreMes(mes));
+    mes = mesSiguiente(mes);
+  }
+  return meses;
+}
+
+const enLista = (items: string[]) =>
+  items.length <= 1 ? (items[0] ?? '') : `${items.slice(0, -1).join(', ')} y ${items.at(-1)}`;
+
+/**
+ * La frase bajo los botones de repetición:
+ * "Se repite cada 3 meses, el día 15: noviembre, febrero, mayo y agosto."
+ */
+export function fraseRepeticion(cada: CadaMeses, dia: number | null, ancla: string): string {
+  const elDia = dia === null ? '' : `, el día ${dia}`;
+  if (cada === 1) return `Se repite cada mes${elDia}.`;
+  if (cada === 12) return `Se repite cada año, en ${nombreMes(ancla)}${elDia}.`;
+  return `Se repite cada ${cada} meses${elDia}: ${enLista(mesesQueToca(cada, ancla))}.`;
 }
 
 /** Día en que vence en ese mes. Si el día no existe en el mes, vence el último día (REC-A11). */

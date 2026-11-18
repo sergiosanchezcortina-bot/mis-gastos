@@ -100,7 +100,12 @@ export function GastosRecurrentes() {
   };
 
   const editar = async (fila: Fila, datos: DatosRecurrente) => {
-    const gasto = await editarRecurrente(db, fila.gasto, { nombre: datos.nombre, diaVencimiento: datos.diaVencimiento });
+    const gasto = await editarRecurrente(
+      db,
+      fila.gasto,
+      { nombre: datos.nombre, diaVencimiento: datos.diaVencimiento, cadaMeses: datos.cadaMeses },
+      mesSeleccionado,
+    );
     setFilas((actuales) => ordenar(actuales?.map((f) => (f.gasto.id === gasto.id ? { ...f, gasto } : f)) ?? []));
     setFormulario(null);
   };
@@ -212,7 +217,7 @@ export function GastosRecurrentes() {
   };
 
   const formularioAgregar = formulario?.modo === 'agregar' && (
-    <FormularioRecurrente modo="agregar" alGuardar={(d) => void agregar(d)} alCancelar={() => {
+    <FormularioRecurrente modo="agregar" mes={mesSeleccionado} alGuardar={(d) => void agregar(d)} alCancelar={() => {
       setFormulario(null);
       botonAgregar.current?.focus();
     }} />
@@ -270,6 +275,7 @@ export function GastosRecurrentes() {
               <div key={fila.pago.id} className="tabla__formulario">
                 <FormularioRecurrente
                   modo="editar"
+                  mes={mesSeleccionado}
                   inicial={fila.gasto}
                   alGuardar={(d) => void editar(fila, d)}
                   alCancelar={() => setFormulario(null)}

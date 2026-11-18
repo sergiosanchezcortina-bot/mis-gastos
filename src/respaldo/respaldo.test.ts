@@ -178,3 +178,26 @@ describe('comprobantes en el respaldo (F7-A6)', () => {
     expect(leerRespaldo(cambiar((c) => (c.datosBase64 = '%%%'))).ok).toBe(false);
   });
 });
+
+describe('repetición en el respaldo (fase 8)', () => {
+  it('un respaldo de la versión 2 deja los gastos recurrentes mensuales', () => {
+    const v2 = alterado((r) => {
+      r.versionEsquema = 2;
+      for (const g of r.gastosRecurrentes as Array<Record<string, unknown>>) {
+        delete g.cadaMeses;
+        delete g.ancla;
+      }
+    });
+    const leido = leerRespaldo(v2);
+    expect(leido.ok).toBe(true);
+    if (!leido.ok) return;
+    expect(leido.datos.gastosRecurrentes.every((g) => g.cadaMeses === 1 && g.ancla === g.desde)).toBe(true);
+  });
+
+  it('rechaza una repetición que no existe', () => {
+    const malo = alterado((r) => {
+      (r.gastosRecurrentes as Array<Record<string, unknown>>)[0]!.cadaMeses = 5;
+    });
+    expect(leerRespaldo(malo).ok).toBe(false);
+  });
+});

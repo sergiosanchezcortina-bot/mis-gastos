@@ -18,7 +18,12 @@ import {
   ultimoMontoConocido,
   validarFormulario,
   vigenteEn,
+  filasQueFaltan as filasQueFaltanRep,
+  fraseRepeticion,
+  mesesQueToca,
+  tocaEn,
 } from './recurrentes';
+import { mesesEntre } from './fechas';
 
 function gasto(parcial: Partial<GastoRecurrente> & { id: string }): GastoRecurrente {
   return {
@@ -28,6 +33,8 @@ function gasto(parcial: Partial<GastoRecurrente> & { id: string }): GastoRecurre
     hasta: null,
     palabrasClave: [],
     creadoEn: '2026-01-01T00:00:00',
+    cadaMeses: 1,
+    ancla: parcial.desde ?? '2026-01',
     ...parcial,
   };
 }
@@ -376,5 +383,56 @@ describe('validarFormulario (REC-8, REC-A7)', () => {
 
   it.each(['0', '32', 'abc', '3.5', '-1', '100'])('rechaza "%s" como día', (dia) => {
     expect(validarFormulario({ nombre: 'a', dia }).errores).toEqual({ dia: 'Escribe un día del 1 al 31' });
+  });
+});
+
+describe('repetición (REC-13)', () => {
+  it('mesesEntre cuenta meses, también hacia atrás y cruzando el año', () => {
+    expect(mesesEntre('2026-11', '2027-02')).toBe(3);
+    expect(mesesEntre('2026-11', '2026-11')).toBe(0);
+    expect(mesesEntre('2026-11', '2026-08')).toBe(-3);
+  });
+
+  it('F8-A1: un gasto anual de noviembre toca solo en noviembre', () => {
+    const seguro = gasto({ id: 's', desde: '2026-11', ancla: '2026-11', cadaMeses: 12 });
+    expect(vigenteEn(seguro, '2026-11')).toBe(true);
+    expect(vigenteEn(seguro, '2026-12')).toBe(false);
+    expect(vigenteEn(seguro, '2027-10')).toBe(false);
+    expect(vigenteEn(seguro, '2027-11')).toBe(true);
+    expect(vigenteEn(seguro, '2026-10')).toBe(false); // antes de "desde"
+  });
+
+  it('F8-A2: cada 3 meses desde noviembre toca en noviembre y febrero, y propone el último monto', () => {
+    const contribuciones = gasto({ id: 'c', desde: '2026-11', ancla: '2026-11', cadaMeses: 3 });
+    expect(['2026-11', '2026-12', '2027-01', '2027-02'].map((m) => tocaEn(contribuciones, m))).toEqual([true, false, false, true]);
+    const pagos = [pago({ gastoRecurrenteId: 'c', mes: '2026-11', monto: 96000 })];
+    expect(filasQueFaltanRep([contribuciones], pagos, '2027-01', '2027-02')).toEqual([]);
+    expect(filasQueFaltanRep([contribuciones], pagos, '2027-02', '2027-02')[0]?.monto).toBe(96000);
+  });
+
+  it('un ancla posterior a "desde" también calcula hacia atrás', () => {
+    const g = gasto({ id: 'g', desde: '2026-01', ancla: '2026-11', cadaMeses: 2 });
+    expect(tocaEn(g, '2026-09')).toBe(true);
+    expect(tocaEn(g, '2026-10')).toBe(false);
+  });
+
+  it('cada mes es como antes', () => {
+    const g = gasto({ id: 'g', desde: '2026-01' });
+    expect(['2026-01', '2026-02', '2026-07'].every((m) => vigenteEn(g, m))).toBe(true);
+  });
+
+  it('meses en que toca, desde el ancla', () => {
+    expect(mesesQueToca(3, '2026-11')).toEqual(['noviembre', 'febrero', 'mayo', 'agosto']);
+    expect(mesesQueToca(6, '2026-11')).toEqual(['noviembre', 'mayo']);
+    expect(mesesQueToca(12, '2026-11')).toEqual(['noviembre']);
+  });
+
+  it('la frase resume la repetición con los meses', () => {
+    expect(fraseRepeticion(1, 15, '2026-11')).toBe('Se repite cada mes, el día 15.');
+    expect(fraseRepeticion(1, null, '2026-11')).toBe('Se repite cada mes.');
+    expect(fraseRepeticion(3, 15, '2026-11')).toBe('Se repite cada 3 meses, el día 15: noviembre, febrero, mayo y agosto.');
+    expect(fraseRepeticion(6, null, '2026-11')).toBe('Se repite cada 6 meses: noviembre y mayo.');
+    expect(fraseRepeticion(12, 10, '2026-11')).toBe('Se repite cada año, en noviembre, el día 10.');
+    expect(fraseRepeticion(2, null, '2026-01')).toBe('Se repite cada 2 meses: enero, marzo, mayo, julio, septiembre y noviembre.');
   });
 });

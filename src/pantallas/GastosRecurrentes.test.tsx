@@ -31,6 +31,8 @@ async function prepararBase(): Promise<BaseDeDatos> {
     hasta: null,
     palabrasClave: [],
     creadoEn: '2026-10-01T00:00:00',
+    cadaMeses: 1,
+    ancla: '2026-10',
   }));
   const pagos: PagoRecurrente[] = PLANTILLAS.map(([nombre, , monto]) => ({
     id: `${nombre}-2026-10`,
@@ -279,12 +281,12 @@ describe('REC-A8: quitar', () => {
   });
 });
 
-describe('Cambiar nombre o día', () => {
+describe('Cambiar nombre, día o repetición', () => {
   it('cambia el nombre y reordena por el día nuevo', async () => {
     const { usuario } = await abrirRecurrentes();
     await waitFor(() => expect(casilla('Gas')).toBeInTheDocument());
     await usuario.click(screen.getByRole('button', { name: 'Editar lista' }));
-    await usuario.click(screen.getByRole('button', { name: 'Cambiar nombre o día de Gas' }));
+    await usuario.click(screen.getByRole('button', { name: 'Cambiar nombre, día o repetición de Gas' }));
     const nombre = screen.getByRole('textbox', { name: 'Nombre' });
     await usuario.clear(nombre);
     await usuario.type(nombre, 'Gas de cañería');
@@ -467,5 +469,40 @@ describe('F7-A5: comprobante', () => {
     await subir(usuario, 'Luz', archivo());
     await usuario.click(screen.getByRole('button', { name: /mes anterior/i }));
     expect(await screen.findByRole('button', { name: 'Agregar comprobante de Luz' })).toBeInTheDocument();
+  });
+});
+
+describe('F8-A1: repetición', () => {
+  it('al agregar se elige "Cada año" y la frase lo explica; la fila lo dice bajo el nombre', async () => {
+    const { usuario, db } = await abrirRecurrentes();
+    await waitFor(() => expect(casilla('Agua')).toBeInTheDocument());
+    await usuario.click(screen.getByRole('button', { name: 'Agregar gasto recurrente' }));
+    expect(screen.getByRole('button', { name: 'Cada mes' })).toHaveAttribute('aria-pressed', 'true');
+    await usuario.type(screen.getByRole('textbox', { name: 'Nombre' }), 'Permiso de circulación');
+    await usuario.type(screen.getByRole('textbox', { name: 'Día de vencimiento' }), '10');
+    expect(screen.getByText('Se repite cada mes, el día 10.')).toBeInTheDocument();
+    await usuario.click(screen.getByRole('button', { name: 'Cada año' }));
+    expect(screen.getByText('Se repite cada año, en noviembre, el día 10.')).toBeInTheDocument();
+    await usuario.click(screen.getByRole('button', { name: 'Cada 3 meses' }));
+    expect(screen.getByText('Se repite cada 3 meses, el día 10: noviembre, febrero, mayo y agosto.')).toBeInTheDocument();
+    await usuario.click(screen.getByRole('button', { name: 'Cada año' }));
+    await usuario.click(screen.getByRole('button', { name: 'Guardar' }));
+
+    await waitFor(() => expect(casilla('Permiso de circulación')).toBeInTheDocument());
+    expect(screen.getByText('· Cada año')).toBeInTheDocument();
+    const guardado = (await leerTodo(db)).gastosRecurrentes.find((g) => g.nombre === 'Permiso de circulación');
+    expect(guardado).toMatchObject({ cadaMeses: 12, ancla: '2026-11' });
+  });
+
+  it('cambiar la repetición de un gasto existente', async () => {
+    const { usuario, db } = await abrirRecurrentes();
+    await waitFor(() => expect(casilla('Agua')).toBeInTheDocument());
+    await usuario.click(screen.getByRole('button', { name: 'Editar lista' }));
+    await usuario.click(screen.getByRole('button', { name: 'Cambiar nombre, día o repetición de Agua' }));
+    expect(screen.getByRole('button', { name: 'Cada mes' })).toHaveAttribute('aria-pressed', 'true');
+    await usuario.click(screen.getByRole('button', { name: 'Cada 2 meses' }));
+    await usuario.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+    await waitFor(() => expect(screen.getByText('· Cada 2 meses')).toBeInTheDocument());
+    expect((await leerTodo(db)).gastosRecurrentes.find((g) => g.nombre === 'Agua')).toMatchObject({ cadaMeses: 2, ancla: '2026-11' });
   });
 });

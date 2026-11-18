@@ -132,7 +132,7 @@ describe('reemplazarTodo y vaciarTodo', () => {
     const leidos = await leerTodo(db);
     expect(leidos.gastos).toHaveLength(nuevos.gastos.length);
     expect(leidos.categorias).toHaveLength(8);
-    expect(leidos.gastosRecurrentes).toHaveLength(6);
+    expect(leidos.gastosRecurrentes).toHaveLength(nuevos.gastosRecurrentes.length);
     db.close();
   });
 
@@ -219,6 +219,31 @@ describe('migración de la versión 1 a la 2', () => {
     expect(gastos[0]).toEqual({ ...antiguo, descripcion: null });
     // Y queda el almacén nuevo de comprobantes, vacío.
     expect((await leerTodo(db)).comprobantes).toEqual([]);
+    db.close();
+  });
+});
+
+describe('migración a la versión 3', () => {
+  it('F8-A3: los gastos recurrentes que existían quedan mensuales, contados desde su inicio', async () => {
+    const nombre = nombreNuevo();
+    const v2 = await openDB(nombre, 2, {
+      upgrade(db) {
+        db.createObjectStore('categorias', { keyPath: 'id' });
+        db.createObjectStore('gastosRecurrentes', { keyPath: 'id' });
+        const pagos = db.createObjectStore('pagosRecurrentes', { keyPath: 'id' });
+        pagos.createIndex('porMes', 'mes');
+        pagos.createIndex('porGastoRecurrente', 'gastoRecurrenteId');
+        db.createObjectStore('gastos', { keyPath: 'id' }).createIndex('porFecha', 'fecha');
+        db.createObjectStore('ajustes');
+        db.createObjectStore('comprobantes', { keyPath: 'pagoId' });
+      },
+    });
+    const antiguo = { id: 'luz', nombre: 'Luz', diaVencimiento: 15, desde: '2026-06', hasta: null, palabrasClave: [], creadoEn: '' };
+    await v2.put('gastosRecurrentes', antiguo);
+    v2.close();
+
+    const db = await abrirBase(nombre);
+    expect((await leerTodo(db)).gastosRecurrentes).toEqual([{ ...antiguo, cadaMeses: 1, ancla: '2026-06' }]);
     db.close();
   });
 });

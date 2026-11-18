@@ -5,6 +5,7 @@
  * Se cargan abriendo la app con ?datos=ejemplo y se borran con ?datos=vacio.
  */
 import type {
+  CadaMeses,
   ClaveIcono,
   DatosCompletos,
   Gasto,
@@ -12,15 +13,18 @@ import type {
   PagoRecurrente,
 } from '../dominio/tipos';
 import { diasDelMes, fechaLocal, mesAnterior, mesDeFecha, partesMes } from '../dominio/fechas';
+import { tocaEn } from '../dominio/recurrentes';
 import { categoriasIniciales, VERSION_ESQUEMA } from './db';
 
-const RECURRENTES: Array<{ nombre: string; dia: number | null; monto: number }> = [
+const RECURRENTES: Array<{ nombre: string; dia: number | null; monto: number; cada?: CadaMeses }> = [
   { nombre: 'Gastos comunes', dia: 5, monto: 120000 },
   { nombre: 'Celular e internet', dia: 10, monto: 52000 },
   { nombre: 'Luz', dia: 15, monto: 38000 },
   { nombre: 'Agua', dia: 20, monto: 18000 },
   { nombre: 'Gas', dia: 25, monto: 27000 },
   { nombre: 'Seguro del auto', dia: 28, monto: 42000 },
+  // Toca este mes y cada 3 meses hacia atrás (fase 8).
+  { nombre: 'Contribuciones', dia: 30, monto: 96000, cada: 3 },
 ];
 
 /** Algunos gastos de ejemplo llevan descripción (fase 7). */
@@ -86,6 +90,8 @@ export function crearDatosDeEjemplo(hoy: string = fechaLocal()): DatosCompletos 
     hasta: null,
     palabrasClave: [],
     creadoEn: ahora,
+    cadaMeses: r.cada ?? 1,
+    ancla: r.cada ? mesActual : primerMes,
   }));
 
   const pagosRecurrentes: PagoRecurrente[] = [];
@@ -97,7 +103,7 @@ export function crearDatosDeEjemplo(hoy: string = fechaLocal()): DatosCompletos 
 
     gastosRecurrentes.forEach((plantilla, i) => {
       const base = RECURRENTES[i];
-      if (!base) return;
+      if (!base || !tocaEn(plantilla, mes)) return;
       // Variación de hasta ±10 % en las cuentas que cambian (luz, agua, gas).
       const varia = ['Luz', 'Agua', 'Gas'].includes(base.nombre);
       const monto = varia ? Math.round((base.monto * (0.9 + azar() * 0.2)) / 100) * 100 : base.monto;

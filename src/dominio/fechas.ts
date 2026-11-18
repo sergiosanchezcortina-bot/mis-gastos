@@ -70,6 +70,13 @@ export function diasDelMes(mes: string): number {
 }
 
 /** Nombre del mes en minúscula, para usar dentro de una frase: "noviembre". */
+/** Meses de distancia: mesesEntre('2026-11', '2027-02') = 3. Negativo si `hasta` es anterior. */
+export function mesesEntre(desde: string, hasta: string): number {
+  const a = partesMes(desde);
+  const b = partesMes(hasta);
+  return (b.anio - a.anio) * 12 + (b.mes - a.mes);
+}
+
 export function nombreMes(mes: string): string {
   const nombre = NOMBRES_MESES[partesMes(mes).mes - 1];
   if (nombre === undefined) throw new RangeError(`Mes inválido: ${mes}`);

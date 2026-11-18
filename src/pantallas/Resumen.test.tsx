@@ -31,7 +31,7 @@ async function abrirResumen({ gastos = [], recurrentes = [] }: Escenario = {}) {
   recurrentes.forEach(([nombre, monto, diaPago, mes = '2026-11'], i) => {
     let plantilla = plantillas.find((p) => p.nombre === nombre);
     if (!plantilla) {
-      plantilla = { id: `r${i}`, nombre, diaVencimiento: 5 + i, desde: mes, hasta: null, palabrasClave: [], creadoEn: '' };
+      plantilla = { id: `r${i}`, nombre, diaVencimiento: 5 + i, desde: mes, hasta: null, palabrasClave: [], creadoEn: '', cadaMeses: 1, ancla: '2000-01' };
       plantillas.push(plantilla);
     }
     if (mes < plantilla.desde) plantilla.desde = mes;

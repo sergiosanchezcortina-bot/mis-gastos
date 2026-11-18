@@ -72,7 +72,9 @@ function esGastoRecurrente(v: unknown): v is GastoRecurrente {
     (v.hasta === null || esMes(v.hasta)) &&
     Array.isArray(v.palabrasClave) &&
     v.palabrasClave.every(esTexto) &&
-    esTexto(v.creadoEn)
+    esTexto(v.creadoEn) &&
+    [1, 2, 3, 6, 12].includes(v.cadaMeses as number) &&
+    esMes(v.ancla)
   );
 }
 
@@ -139,6 +141,13 @@ function migrar(respaldo: Objeto, version: number): Objeto {
     // Versión 2 (fase 7): descripción en los gastos no recurrentes.
     const gastos = Array.isArray(r.gastos) ? r.gastos.map((g: unknown) => (esObjeto(g) ? { ...g, descripcion: null } : g)) : r.gastos;
     r = { ...r, gastos, comprobantes: [] };
+  }
+  if (version < 3) {
+    // Versión 3 (fase 8): repetición. Los gastos recurrentes de antes son mensuales.
+    const gastosRecurrentes = Array.isArray(r.gastosRecurrentes)
+      ? r.gastosRecurrentes.map((g: unknown) => (esObjeto(g) ? { cadaMeses: 1, ancla: g.desde, ...g } : g))
+      : r.gastosRecurrentes;
+    r = { ...r, gastosRecurrentes };
   }
   return r;
 }

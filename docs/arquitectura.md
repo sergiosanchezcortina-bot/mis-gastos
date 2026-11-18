@@ -53,9 +53,11 @@ type GastoRecurrente = {
   hasta: string | null;            // último mes en que aplica; null = sigue vigente
   palabrasClave: string[];         // fase 6: para reconocerlo en la cartola
   creadoEn: string;                // fecha y hora ISO
+  cadaMeses: 1 | 2 | 3 | 6 | 12;   // esquema 3: cada cuántos meses se repite
+  ancla: string;                   // esquema 3: mes desde el que se cuenta la repetición
 };
 
-// Una fila por gasto recurrente y por mes
+// Una fila por gasto recurrente y por mes en que le toca
 type PagoRecurrente = {
   id: string;
   gastoRecurrenteId: string;
@@ -118,7 +120,7 @@ Comparación del Resumen:
 
 Filas mensuales de gastos recurrentes:
 
-- Al abrir la app y al cambiar de mes, para cada `GastoRecurrente` vigente en ese mes (`desde <= mes` y `hasta` vacío o `>= mes`) que no tenga `PagoRecurrente`, se crea uno con `pagado = false` y `monto` = el monto no vacío más reciente de ese gasto en meses anteriores, o `null` si no hay.
+- Al abrir la app y al cambiar de mes, para cada `GastoRecurrente` vigente en ese mes (`desde <= mes`, `hasta` vacío o `>= mes`, y la distancia en meses entre `ancla` y `mes` es múltiplo de `cadaMeses`) que no tenga `PagoRecurrente`, se crea uno con `pagado = false` y `monto` = el monto no vacío más reciente de ese gasto en meses anteriores, o `null` si no hay.
 - Nunca se crean filas para meses futuros.
 - Quitar un gasto en el mes `m`: si su fila de `m` no está pagada, se borra y `hasta` queda en el mes anterior a `m`. Si está pagada, `hasta` queda en `m`.
 
