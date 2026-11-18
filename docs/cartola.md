@@ -154,7 +154,7 @@ Mandan sobre lo anterior donde se contradigan. Ajustar las secciones 2 a 9 al pa
   - Un botón agrega todo lo aprobado. "Deshacer esta carga" sigue disponible.
 - **Sin clasificar.** Lo que no calza con ninguna regla se propone como "Otro", con el nombre del comercio como descripción y la marca de que vino de la tarjeta.
 - **Cuotas.** Cada cuota es un gasto del mes en que se cobra.
-- **Intereses, comisiones e impuestos.** Van a "Intereses y comisiones" (pendiente: confirmar si es una categoría nueva).
+- **Intereses, comisiones e impuestos.** Van a la categoría nueva "Intereses y comisiones". Se crea en la fase 6 con su ícono, con migración para las bases existentes. Solo la llena la cartola: no aparece en el formulario de gastos no recurrentes ni cuenta en el límite de 8 categorías visibles de AJU-1.
 - **Pagos a la tarjeta y abonos.** No son gastos; se descartan.
 - **Comprobación.** La suma de los cargos leídos debe ser igual al total facturado del estado de cuenta. Si no cuadra, no se carga nada.
 
