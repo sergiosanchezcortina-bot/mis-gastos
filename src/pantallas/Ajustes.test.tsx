@@ -228,19 +228,19 @@ describe('AJU-A7: aviso de respaldo en el Resumen', () => {
     await guardarAjustes(db, { versionEsquema: 1, ultimoRespaldo: '2026-10-10T09:00:00' });
     const usuario = userEvent.setup();
     render(<App db={db} obtenerHoy={() => HOY} />);
-    await waitFor(() => expect(screen.getByText('Hace más de un mes que no haces un respaldo.')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Hace más de una semana que no haces un respaldo.')).toBeInTheDocument());
 
     await usuario.click(screen.getByRole('button', { name: 'Hacer respaldo ahora' }));
-    await waitFor(() => expect(screen.queryByText('Hace más de un mes que no haces un respaldo.')).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByText('Hace más de una semana que no haces un respaldo.')).not.toBeInTheDocument());
     expect(descargas).toHaveLength(1);
     expect(descargas[0]!.nombre).toBe('mis-gastos-respaldo-2026-11-17.json');
   });
 
   it('con un respaldo reciente no se muestra', async () => {
     const db = await prepararBase();
-    await guardarAjustes(db, { versionEsquema: 1, ultimoRespaldo: '2026-11-01T09:00:00' });
+    await guardarAjustes(db, { versionEsquema: 1, ultimoRespaldo: '2026-11-14T09:00:00' });
     render(<App db={db} obtenerHoy={() => HOY} />);
     await waitFor(() => expect(screen.getByText('Llevas gastado en noviembre')).toBeInTheDocument());
-    expect(screen.queryByText('Hace más de un mes que no haces un respaldo.')).not.toBeInTheDocument();
+    expect(screen.queryByText('Hace más de una semana que no haces un respaldo.')).not.toBeInTheDocument();
   });
 });

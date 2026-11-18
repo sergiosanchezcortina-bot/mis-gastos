@@ -1,11 +1,11 @@
 /**
- * Cuándo mostrar en el Resumen el aviso "Hace más de un mes que no haces un respaldo." (RES-9).
+ * Cuándo mostrar en el Resumen el aviso "Hace más de una semana que no haces un respaldo." (RES-9).
  */
 import type { Gasto, PagoRecurrente } from './tipos';
 import { diasEntre } from './fechas';
 
-export const DIAS_SIN_RESPALDO = 30;
-export const TEXTO_AVISO_RESPALDO = 'Hace más de un mes que no haces un respaldo.';
+export const DIAS_SIN_RESPALDO = 7;
+export const TEXTO_AVISO_RESPALDO = 'Hace más de una semana que no haces un respaldo.';
 
 /**
  * Se cuenta desde el último respaldo. Si nunca hubo uno, desde el dato más antiguo

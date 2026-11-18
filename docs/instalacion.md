@@ -65,4 +65,4 @@ Marca cada punto y avísale a Claude Code lo que no funcione.
 
 - La app se abre con el ícono verde del Dock, no desde Safari.
 - Sus datos quedan solo en este computador. Si el computador se pierde o se daña, lo único que los salva es el respaldo.
-- Cuando la app le avise "Hace más de un mes que no haces un respaldo.", que haga clic en "Hacer respaldo ahora".
+- Cuando la app le avise "Hace más de una semana que no haces un respaldo.", que haga clic en "Hacer respaldo ahora".

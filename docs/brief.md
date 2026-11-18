@@ -101,7 +101,7 @@ Referencia: `design/pantallas/resumen.html`.
 - **RES-10.** Junto al título de "Mes a mes", el botón "Por categorías". Al apretarlo, cada barra se divide en tramos apilados: uno para "Gastos recurrentes" y uno por categoría con gasto ese mes. Bajo el gráfico aparece una leyenda con muestra de color, nombre y monto de cada tramo del mes seleccionado, en el mismo orden de los tramos. Otro clic vuelve al total. El botón muestra si está activo con un ícono, no solo con color.
 - **RES-7.** Botón principal "Agregar gasto": lleva a Gastos no recurrentes con el cursor en el campo de monto.
 - **RES-8.** Estado vacío (mes sin ningún gasto): "Todavía no hay gastos este mes." y el botón "Agregar gasto". No se muestran tarjetas ni barras en cero.
-- **RES-9.** Aviso de respaldo (desde la fase 4): si pasaron más de 30 días desde el último respaldo, muestra "Hace más de un mes que no haces un respaldo." con el botón "Hacer respaldo ahora".
+- **RES-9.** Aviso de respaldo (desde la fase 4): si pasaron más de 7 días desde el último respaldo, muestra "Hace más de una semana que no haces un respaldo." (antes de la fase 7 eran 30 días) con el botón "Hacer respaldo ahora".
 
 #### Gastos recurrentes
 
@@ -245,7 +245,7 @@ Formato: Dado, Cuando, Entonces. Cada criterio se verifica en la app andando.
 - **AJU-A4.** Dado que hago clic en "Descargar respaldo", entonces se descarga `mis-gastos-respaldo-2026-11-17.json` y la fecha del último respaldo se actualiza.
 - **AJU-A5.** Dado un respaldo válido, cuando lo restauro y confirmo, entonces todos los datos son los del archivo.
 - **AJU-A6.** Dado un archivo que no es un respaldo, cuando intento restaurarlo, entonces veo "Este archivo no es un respaldo de Mis gastos." y mis datos no cambian.
-- **AJU-A7.** Dado que el último respaldo tiene más de 30 días, entonces el Resumen muestra el aviso de respaldo.
+- **AJU-A7.** Dado que el último respaldo tiene más de 7 días, entonces el Resumen muestra el aviso de respaldo.
 
 ### Fase 5: Publicación e instalación
 
