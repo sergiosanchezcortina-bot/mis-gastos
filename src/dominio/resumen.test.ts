@@ -4,7 +4,6 @@ import {
   etiquetaTotal,
   filasEnQueSeFue,
   filasMesAMes,
-  leyendaMesAMes,
   fraseComparacion,
   gastado,
   gastadoHasta,
@@ -196,22 +195,20 @@ describe('filasEnQueSeFue (RES-4)', () => {
 
 describe('filasMesAMes (RES-6)', () => {
   const datos = {
-    gastos: ['2026-04', '2026-05', '2026-06', '2026-07', '2026-08', '2026-09', '2026-10', '2026-11'].map((m, i) =>
-      g(`${m}-05`, (i + 1) * 1000),
-    ),
+    gastos: ['2026-06', '2026-07', '2026-08', '2026-09', '2026-10', '2026-11'].map((m, i) => g(`${m}-05`, (i + 1) * 1000)),
     pagos: [],
   };
 
-  it('F7-A3: con ocho meses muestra los seis más recientes y el actual dice "hasta hoy"', () => {
+  it('RES-A7: con seis meses muestra los cuatro más recientes y el actual dice "hasta hoy"', () => {
     const filas = filasMesAMes(datos, '2026-11', '2026-11');
-    expect(filas.map((f) => f.etiqueta)).toEqual(['Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre, hasta hoy']);
-    expect(filas.map((f) => f.esActual)).toEqual([false, false, false, false, false, true]);
-    expect(filas[5]?.proporcion).toBe(1);
-    expect(filas[0]?.proporcion).toBe(3 / 8);
+    expect(filas.map((f) => f.etiqueta)).toEqual(['Agosto', 'Septiembre', 'Octubre', 'Noviembre, hasta hoy']);
+    expect(filas.map((f) => f.esActual)).toEqual([false, false, false, true]);
+    expect(filas[3]?.proporcion).toBe(1);
+    expect(filas[0]?.proporcion).toBe(0.5);
   });
 
   it('en un mes pasado termina en ese mes', () => {
-    expect(filasMesAMes(datos, '2026-06', '2026-11').map((f) => f.mes)).toEqual(['2026-04', '2026-05', '2026-06']);
+    expect(filasMesAMes(datos, '2026-08', '2026-11').map((f) => f.mes)).toEqual(['2026-06', '2026-07', '2026-08']);
   });
 
   it('salta los meses sin datos', () => {
@@ -234,51 +231,5 @@ describe('filasMesAMes (RES-6)', () => {
 
   it('primerMesConDatos considera gastos y recurrentes pagados', () => {
     expect(primerMesConDatos({ gastos: [g('2026-09-01', 1)], pagos: [p('2026-08', 1, '2026-08-31'), p('2026-05', 1, null)] })).toBe('2026-08');
-  });
-});
-
-describe('Mes a mes por categorías (RES-10)', () => {
-  const categorias: Categoria[] = [
-    { id: 'super', nombre: 'Supermercado', icono: 'supermercado', visible: true, orden: 0 },
-    { id: 'salud', nombre: 'Salud', icono: 'salud', visible: true, orden: 1 },
-    { id: 'ropa', nombre: 'Ropa', icono: 'ropa', visible: false, orden: 6 },
-  ];
-  const datos = {
-    gastos: [g('2026-10-02', 5000, 'super'), g('2026-10-09', 3000, 'ropa'), g('2026-11-01', 2000, 'super'), g('2026-11-03', 1500, 'salud'), g('2026-11-04', 500, 'super')],
-    pagos: [p('2026-11', 40000, '2026-11-05'), p('2026-11', 9000, null)],
-  };
-
-  it('F7-A4: los tramos de cada mes suman su total', () => {
-    for (const fila of filasMesAMes(datos, '2026-11', '2026-11', categorias)) {
-      expect(fila.tramos.reduce((t, x) => t + x.total, 0)).toBe(fila.total);
-    }
-  });
-
-  it('orden fijo: recurrentes primero y luego las categorías por orden; sin tramos en cero', () => {
-    const [octubre, noviembre] = filasMesAMes(datos, '2026-11', '2026-11', categorias);
-    expect(octubre?.tramos.map((t) => [t.nombre, t.total])).toEqual([
-      ['Supermercado', 5000],
-      ['Ropa', 3000],
-    ]);
-    expect(noviembre?.tramos.map((t) => [t.nombre, t.total, t.color])).toEqual([
-      ['Gastos recurrentes', 40000, 'recurrentes'],
-      ['Supermercado', 2500, 'supermercado'],
-      ['Salud', 1500, 'salud'],
-    ]);
-  });
-
-  it('una categoría oculta igual cuenta si tiene gastos', () => {
-    const octubre = filasMesAMes(datos, '2026-10', '2026-11', categorias).at(-1);
-    expect(octubre?.tramos.some((t) => t.nombre === 'Ropa')).toBe(true);
-  });
-
-  it('la leyenda trae todo lo que aparece en alguna barra, con los montos del mes elegido', () => {
-    const filas = filasMesAMes(datos, '2026-11', '2026-11', categorias);
-    expect(leyendaMesAMes(datos, filas, '2026-11', categorias).map((t) => [t.nombre, t.total])).toEqual([
-      ['Gastos recurrentes', 40000],
-      ['Supermercado', 2500],
-      ['Salud', 1500],
-      ['Ropa', 0],
-    ]);
   });
 });

@@ -28,19 +28,6 @@
   --color-barra: #231f20;                 /* barras de "¿En qué se fue?" y "Mes a mes" */
   --color-barra-actual: #abd037;          /* mes en curso y avance de pagados */
 
-  /* Tramos de "Mes a mes" por categorías (fase 7). El color sigue a la categoría,
-     no a su posición. Paleta validada para daltonismo en el orden de los tramos;
-     siempre va con leyenda y montos escritos, nunca solo el color. */
-  --color-tramo-recurrentes: #2a78d6;
-  --color-tramo-supermercado: #eb6834;
-  --color-tramo-salud: #1baf7a;
-  --color-tramo-transporte: #6250d6;
-  --color-tramo-casa: #eda100;
-  --color-tramo-salidas: #e87ba4;
-  --color-tramo-familia: #008300;
-  --color-tramo-ropa: #e34948;
-  --color-tramo-otro: #8a8984;
-
   /* Tipografía */
   --fuente: "DM Sans", system-ui, sans-serif;
   --texto-base: 15px;                     /* texto y botones */

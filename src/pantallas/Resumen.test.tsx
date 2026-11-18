@@ -198,62 +198,22 @@ describe('RES-A5 y RES-A6: ¿En qué se fue?', () => {
   });
 });
 
-describe('RES-A7 y F7-A3: mes a mes', () => {
-  it('con datos en ocho meses muestra seis barras con su total, y el actual dice "hasta hoy"', async () => {
+describe('RES-A7: mes a mes', () => {
+  it('con datos en seis meses muestra los cuatro más recientes y el actual dice "hasta hoy"', async () => {
     await abrirResumen({
-      gastos: ['04', '05', '06', '07', '08', '09', '10', '11'].map((m) => [`2026-${m}-05`, 100000, 'Casa'] as [string, number, string]),
+      gastos: ['06', '07', '08', '09', '10', '11'].map((m) => [`2026-${m}-05`, 100000, 'Casa'] as [string, number, string]),
     });
     await esperarCarga();
     const panel = screen.getByRole('region', { name: 'Mes a mes' });
-    const columnas = within(panel).getAllByRole('listitem');
-    expect(columnas.map((f) => f.querySelector('.grafico__mes')?.textContent)).toEqual([
-      'Junio',
-      'Julio',
+    const filas = within(panel).getAllByRole('listitem');
+    expect(filas.map((f) => f.querySelector('.fila-barra__nombre')?.textContent)).toEqual([
       'Agosto',
       'Septiembre',
       'Octubre',
       'Noviembre, hasta hoy',
     ]);
-    expect(columnas.every((c) => c.querySelector('.grafico__monto')?.textContent === '$100.000')).toBe(true);
-    expect(columnas[5]!.querySelector('.grafico__barra')).toHaveClass('grafico__barra--acento');
-    expect(columnas[4]!.querySelector('.grafico__barra')).not.toHaveClass('grafico__barra--acento');
-  });
-});
-
-describe('F7-A4: mes a mes por categorías', () => {
-  it('el botón divide las barras en tramos y muestra la leyenda con nombres y montos', async () => {
-    const { usuario } = await abrirResumen({
-      gastos: [
-        ['2026-10-05', 30000, 'Casa'],
-        ['2026-11-03', 20000, 'Supermercado'],
-        ['2026-11-04', 5000, 'Salud'],
-      ],
-      recurrentes: [['Luz', 38000, 5]],
-    });
-    await esperarCarga();
-    const panel = screen.getByRole('region', { name: 'Mes a mes' });
-    const boton = within(panel).getByRole('button', { name: 'Por categorías' });
-    expect(boton).toHaveAttribute('aria-pressed', 'false');
-    expect(panel.querySelectorAll('.grafico__tramo')).toHaveLength(0);
-
-    await usuario.click(boton);
-    expect(boton).toHaveAttribute('aria-pressed', 'true');
-    const columnas = within(panel).getAllByRole('listitem').filter((li) => li.classList.contains('grafico__columna'));
-    expect(columnas[0]!.querySelectorAll('.grafico__tramo')).toHaveLength(1);
-    expect(columnas[1]!.querySelectorAll('.grafico__tramo')).toHaveLength(3);
-    expect(columnas[1]).toHaveTextContent('Gastos recurrentes, $38.000; Supermercado, $20.000; Salud, $5.000');
-
-    const leyenda = within(panel).getByRole('heading', { name: 'Por categorías en noviembre' }).parentElement!;
-    expect(within(leyenda).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
-      'Gastos recurrentes$38.000',
-      'Supermercado$20.000',
-      'Salud$5.000',
-      'Casa$0',
-    ]);
-
-    await usuario.click(boton);
-    expect(boton).toHaveAttribute('aria-pressed', 'false');
-    expect(within(panel).queryByRole('heading', { name: /^Por categorías en/ })).not.toBeInTheDocument();
+    expect(filas[3]!.querySelector('.barra__relleno')).toHaveClass('barra__relleno--acento');
+    expect(filas[2]!.querySelector('.barra__relleno')).not.toHaveClass('barra__relleno--acento');
   });
 });
 

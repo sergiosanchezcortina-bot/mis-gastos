@@ -2,7 +2,7 @@
  * Cálculos del Resumen. Ver brief RES-1 a RES-8 y arquitectura 2.2.
  * Todo son funciones puras sobre la lista completa de gastos y pagos recurrentes.
  */
-import type { Categoria, ClaveIcono, Gasto, PagoRecurrente } from './tipos';
+import type { Categoria, Gasto, PagoRecurrente } from './tipos';
 import { diasDelMes, mesAnterior, mesDeFecha, nombreMes } from './fechas';
 import { formatearMonto } from './montos';
 import { ordenarGastos } from './gastos';
@@ -120,26 +120,9 @@ export function filasEnQueSeFue(
 
 // ---------- Mes a mes (RES-6) ----------
 
-/** Un tramo de una barra apilada: "Gastos recurrentes" o una categoría (RES-10). */
-export type TramoMes = {
-  clave: string; // 'recurrentes' o el id de la categoría
-  nombre: string;
-  /** El color sigue a la categoría (su ícono es fijo), nunca a su posición. */
-  color: 'recurrentes' | ClaveIcono;
-  total: number;
-};
+export type FilaMesAMes = { mes: string; etiqueta: string; total: number; proporcion: number; esActual: boolean };
 
-export type FilaMesAMes = {
-  mes: string;
-  etiqueta: string;
-  total: number;
-  proporcion: number;
-  esActual: boolean;
-  /** Tramos con monto mayor que cero, en orden fijo: recurrentes y luego las categorías. */
-  tramos: TramoMes[];
-};
-
-export const MESES_EN_MES_A_MES = 6;
+export const MESES_EN_MES_A_MES = 4;
 
 /** El mes más antiguo con datos, o null. */
 export function primerMesConDatos({ gastos, pagos }: Datos): string | null {
@@ -158,46 +141,7 @@ export function primerMesConDatos({ gastos, pagos }: Datos): string | null {
  * Hasta cuatro meses con datos que terminan en el mes seleccionado, del más antiguo al más nuevo.
  * El mes en curso se rotula "Noviembre, hasta hoy".
  */
-/** Todos los tramos posibles de un mes, en orden fijo, incluso los que están en cero. */
-function tramosPosibles(datos: Datos, mes: string, categorias: readonly Categoria[]): TramoMes[] {
-  const delMes = gastosDelMes(datos.gastos, mes);
-  const ordenadas = [...categorias].sort((a, b) => a.orden - b.orden);
-  return [
-    {
-      clave: 'recurrentes',
-      nombre: 'Gastos recurrentes',
-      color: 'recurrentes' as const,
-      total: suma(pagadosDelMes(datos.pagos, mes).map((p) => p.monto)),
-    },
-    ...ordenadas.map((c) => ({
-      clave: c.id,
-      nombre: c.nombre,
-      color: c.icono,
-      total: suma(delMes.filter((g) => g.categoriaId === c.id).map((g) => g.monto)),
-    })),
-  ];
-}
-
-/**
- * Leyenda de "Por categorías" (RES-10): cada tramo que aparece en alguna barra, en el
- * orden de los tramos, con su monto en el mes seleccionado (puede ser $0).
- */
-export function leyendaMesAMes(
-  datos: Datos,
-  filas: readonly FilaMesAMes[],
-  mesSeleccionado: string,
-  categorias: readonly Categoria[],
-): TramoMes[] {
-  const presentes = new Set(filas.flatMap((f) => f.tramos.map((t) => t.clave)));
-  return tramosPosibles(datos, mesSeleccionado, categorias).filter((t) => presentes.has(t.clave));
-}
-
-export function filasMesAMes(
-  datos: Datos,
-  mesSeleccionado: string,
-  mesActual: string,
-  categorias: readonly Categoria[] = [],
-): FilaMesAMes[] {
+export function filasMesAMes(datos: Datos, mesSeleccionado: string, mesActual: string): FilaMesAMes[] {
   const primero = primerMesConDatos(datos);
   if (primero === null) return [];
   const meses: string[] = [];
@@ -216,7 +160,6 @@ export function filasMesAMes(
       total,
       proporcion: mayor === 0 ? 0 : total / mayor,
       esActual: mes === mesActual,
-      tramos: tramosPosibles(datos, mes, categorias).filter((t) => t.total > 0),
     };
   });
 }

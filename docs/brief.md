@@ -97,8 +97,7 @@ Referencia: `design/pantallas/resumen.html`.
   - "Te falta pagar": suma de los recurrentes sin pagar y el enlace "Ver los 3 gastos pendientes", que lleva a Gastos recurrentes. Usa estilo de alerta. Si no falta nada, dice "Todo pagado" y pierde el estilo de alerta.
 - **RES-4.** "¿En qué se fue?": una fila para "Gastos recurrentes" (lo pagado) y una por cada categoría con gasto mayor que cero, ordenadas de mayor a menor. Cada fila lleva ícono, nombre, monto y una barra cuyo largo es proporcional a la fila mayor. Las categorías sin gasto no aparecen.
 - **RES-5.** Al hacer clic en una fila de "¿En qué se fue?", se despliega debajo la lista de sus gastos (fecha y monto). Otro clic la cierra. Solo una fila abierta a la vez.
-- **RES-6.** "Mes a mes" (cambiado en la fase 7): gráfico de barras verticales con hasta los seis meses más recientes con datos, incluido el seleccionado. Cada barra lleva el nombre del mes y el total escrito; su alto es proporcional al mes mayor. El mes en curso se rotula "Noviembre, hasta hoy" y su barra usa el color de acento.
-- **RES-10.** Junto al título de "Mes a mes", el botón "Por categorías". Al apretarlo, cada barra se divide en tramos apilados: uno para "Gastos recurrentes" y uno por categoría con gasto ese mes. Bajo el gráfico aparece una leyenda con muestra de color, nombre y monto de cada tramo del mes seleccionado, en el mismo orden de los tramos. Otro clic vuelve al total. El botón muestra si está activo con un ícono, no solo con color.
+- **RES-6.** "Mes a mes": hasta los cuatro meses más recientes con datos, incluido el seleccionado. Cada uno con nombre, total y barra. El mes en curso se rotula "Noviembre, hasta hoy" y su barra usa el color de acento. (En la fase 7 se probó un gráfico vertical con vista por categorías y se descartó.)
 - **RES-7.** Botón principal "Agregar gasto": lleva a Gastos no recurrentes con el cursor en el campo de monto.
 - **RES-8.** Estado vacío (mes sin ningún gasto): "Todavía no hay gastos este mes." y el botón "Agregar gasto". No se muestran tarjetas ni barras en cero.
 - **RES-9.** Aviso de respaldo (desde la fase 4): si pasaron más de 7 días desde el último respaldo, muestra "Hace más de una semana que no haces un respaldo." (antes de la fase 7 eran 30 días) con el botón "Hacer respaldo ahora".
@@ -254,12 +253,10 @@ Formato: Dado, Cuando, Entonces. Cada criterio se verifica en la app andando.
 - **PUB-A3.** Dado que reinicio el Mac, entonces los datos siguen ahí.
 - **PUB-A4.** Dado que publico una versión nueva, entonces los datos existentes no se pierden.
 
-### Fase 7: Descripción, gráfico y comprobante
+### Fase 7: Descripción y comprobante
 
 - **F7-A1.** Dado que anoto un gasto con descripción "Remedios de la tía", entonces la tabla la muestra bajo la categoría y "Corregir" permite cambiarla o borrarla.
 - **F7-A2.** Dado que anoto un gasto sin descripción, entonces se guarda igual que antes, con monto, categoría y Enter.
-- **F7-A3.** Dado datos en ocho meses, entonces "Mes a mes" muestra seis barras, cada una con su total escrito.
-- **F7-A4.** Dado que aprieto "Por categorías", entonces cada barra se divide en tramos que suman su total y aparece la leyenda con nombres y montos.
 - **F7-A5.** Dado que agrego un comprobante a "Luz", entonces la fila muestra "Comprobante" con check, y al hacer clic veo la vista previa.
 - **F7-A6.** Dado que descargo un respaldo con comprobantes y lo restauro, entonces los comprobantes siguen ahí. Un respaldo antiguo (versión 1) se restaura sin errores.
 
@@ -274,7 +271,7 @@ Formato: Dado, Cuando, Entonces. Cada criterio se verifica en la app andando.
 | 4. Ajustes y respaldo | AJU-1 a AJU-3 y RES-9 | Pasa AJU-A1 a AJU-A7 |
 | 5. Publicación | Sitio estático, uso sin conexión, instalación en el Dock | Pasa PUB-A1 a PUB-A4 en el Mac de mi papá |
 | Prueba real | Dos o tres semanas de uso | Se revisan las métricas de la sección 4 |
-| 7. Cambios de noviembre 2026 | Descripción (NOR-1), gráfico mes a mes (RES-6, RES-10), comprobante (REC-12) | Pasa F7-A1 a F7-A6 |
+| 7. Cambios de noviembre 2026 | Descripción (NOR-1), comprobante (REC-12), aviso de respaldo semanal (RES-9) | Pasa F7-A1, F7-A2, F7-A5 y F7-A6 |
 | 6. Cartola | `docs/cartola.md` | Criterios de ese documento |
 
 ## 12. Preguntas abiertas
