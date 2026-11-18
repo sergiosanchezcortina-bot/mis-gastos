@@ -53,7 +53,6 @@ Quedan fuera a propósito. No agregar sin preguntar.
 - Usuarios, contraseñas o sincronización entre dispositivos.
 - Versión para celular.
 - Notificaciones.
-- Gastos recurrentes que no son mensuales (contribuciones, permiso de circulación, seguros anuales). Se anotan como gasto no recurrente el mes en que ocurren.
 - Otras monedas.
 - Modo oscuro.
 
@@ -65,7 +64,7 @@ Los mismos de `CLAUDE.md`: simple ante todo, texto grande, un clic por acción, 
 
 ### 6.2 Navegación
 
-- Barra lateral fija a la izquierda con cuatro pestañas, cada una con ícono y texto: Resumen, Gastos recurrentes, Gastos no recurrentes y Cartola. Abajo, separado, Ajustes.
+- Barra lateral fija a la izquierda con cinco pestañas, cada una con ícono y texto: Resumen, Calendario (fase 8), Gastos recurrentes, Gastos no recurrentes y Cartola. Abajo, separado, Ajustes.
 - La app abre siempre en Resumen.
 - La pestaña activa se distingue por fondo de color y texto en negrita.
 - La pestaña Cartola se construye en la fase 6. Hasta entonces no se muestra en la barra.
@@ -122,6 +121,7 @@ Referencia: `design/pantallas/gastos-recurrentes.html`.
 - **REC-9.** "Editar lista" muestra en cada fila las acciones "Cambiar nombre o día" y "Quitar". Quitar pide confirmación: "¿Quitar Gas de tus gastos recurrentes? Los meses anteriores no cambian." El gasto deja de aparecer desde el mes seleccionado. Si en ese mes ya estaba pagado, ese mes se conserva y deja de aparecer desde el siguiente. Después de quitar: "Se quitó Gas. Deshacer".
 - **REC-10.** Los meses pasados se pueden corregir igual que el actual.
 - **REC-11.** Estado vacío: "Todavía no tienes gastos recurrentes." y el botón "Agregar gasto recurrente".
+- **REC-13.** Repetición (fase 8): al agregar o cambiar un gasto recurrente se elige "¿Cada cuánto se repite?" con botones siempre visibles: "Cada mes" (por defecto), "Cada 2 meses", "Cada 3 meses", "Cada 6 meses" y "Cada año". Bajo los botones, una frase lo resume con los meses en que toca: "Se repite cada 3 meses, el día 15: noviembre, febrero, mayo y agosto." El gasto solo aparece en los meses que le tocan, contados desde el mes en que se agregó o se cambió la repetición. El monto propuesto es el último conocido. Si no es mensual, la fila lo dice bajo el nombre ("Cada 3 meses").
 - **REC-12.** Comprobante (fase 7): cada gasto recurrente de cada mes puede tener un comprobante, opcional y solo uno: una imagen, un PDF u otro archivo de hasta 10 MB. Sin comprobante, la fila muestra el botón "Agregar comprobante", que abre el selector de archivos. Con comprobante, muestra el botón "Comprobante" con un ícono de check. Al hacer clic se abre una ventana con la vista previa (imagen o PDF; otro tipo muestra su nombre y "Descargar") y los botones "Cambiar", "Quitar comprobante" y "Cerrar". Quitar pide confirmación y ofrece deshacer. Los comprobantes quedan en el computador y van dentro del respaldo.
 
 #### Gastos no recurrentes
@@ -133,6 +133,11 @@ Referencia: `design/pantallas/gastos-no-recurrentes.html`.
   2. "¿Cuándo fue?": tres botones, "Hoy" (seleccionado por defecto), "Ayer" y "Otro día". "Otro día" muestra un selector de fecha que no acepta fechas futuras.
   3. "¿En qué fue?": un botón por categoría visible, con ícono y texto. Se elige una.
   4. "Descripción (opcional)": texto libre de hasta 60 caracteres (fase 7).
+- **NOR-11.** Gastos por hacer (fase 8): antes del paso 2, la pregunta "¿Ya lo hiciste?" con dos botones, "Ya lo hice" (por defecto) y "Lo voy a hacer". Con "Lo voy a hacer", el paso 2 pide el día ("Hoy", "Mañana" u "Otro día") y acepta fechas futuras. Un gasto por hacer:
+  - Se ve distinto en la tabla: borde punteado, ícono de reloj, "Por hacer" con su fecha y el monto en gris.
+  - No cuenta como gastado. Se muestra aparte como "por hacer".
+  - Tiene el botón "Ya lo hice", que lo deja como gasto normal con la fecha de hoy (o el último día de su mes, si ese mes ya pasó).
+  - Si pasa su fecha sin marcarlo, muestra "¿Lo hiciste?" con ícono de alerta y los botones "Ya lo hice" y "No lo hice". "No lo hice" lo elimina y ofrece deshacer.
 - **NOR-2.** "Guardar gasto" guarda. La tecla Enter hace lo mismo.
 - **NOR-3.** Validación al guardar, con el mensaje junto al campo: "Escribe cuánto gastaste" si el monto está vacío o es cero; "Elige en qué fue" si falta la categoría.
 - **NOR-4.** Después de guardar: el gasto aparece como primera fila de la tabla, el formulario queda vacío, "Hoy" vuelve a estar seleccionado y el cursor vuelve al monto. Si el gasto es de otro mes, la vista cambia a ese mes.
@@ -142,6 +147,16 @@ Referencia: `design/pantallas/gastos-no-recurrentes.html`.
 - **NOR-8.** "Corregir" convierte la fila en un formulario con los mismos campos y las acciones "Guardar cambios", "Eliminar gasto" y "Cancelar".
 - **NOR-9.** "Eliminar gasto" pide confirmación. Después muestra "Gasto eliminado. Deshacer" hasta la siguiente acción.
 - **NOR-10.** Estado vacío: "Todavía no anotas gastos este mes. Usa el formulario de arriba."
+
+#### Calendario (fase 8)
+
+Sin pantalla de referencia. Usar los mismos componentes y tamaños.
+
+- **CAL-1.** "Cómo terminaría el mes": cifra grande con el total estimado del mes = ya gastado + recurrentes por pagar + gastos por hacer. Debajo, una barra en tres tramos con su texto y monto: "Ya gastado", "Recurrentes por pagar" y "Por hacer". En un mes pasado dice "Así terminó el mes" y solo hay gastado.
+- **CAL-2.** Calendario del mes en grilla de lunes a domingo. Cada día muestra cuántas cosas tiene y su estado con ícono y texto: hecho o pagado (check), pendiente (reloj) o vencido (alerta). Hoy dice "Hoy". Los gastos recurrentes sin día de vencimiento van aparte, bajo la grilla, como "Sin día fijo".
+- **CAL-3.** Al hacer clic en un día, bajo la grilla aparece la lista de ese día: nombre o categoría, monto y estado, con el botón "Marcar pagado" (recurrente) o "Ya lo hice" (gasto por hacer) en lo pendiente. Al abrir la pestaña está elegido hoy, o el día 1 en otro mes.
+- **CAL-4.** "Cómo se acumula tu gasto": una fila por semana del mes ("Del 16 al 22") con el acumulado al final de esa semana y una barra. La parte ya gastada va llena; la estimada, rayada y con la palabra "estimado".
+- **CAL-5.** Lo pendiente que ya venció se suma en la semana de hoy, no en la de su fecha.
 
 #### Ajustes
 
@@ -253,6 +268,17 @@ Formato: Dado, Cuando, Entonces. Cada criterio se verifica en la app andando.
 - **PUB-A3.** Dado que reinicio el Mac, entonces los datos siguen ahí.
 - **PUB-A4.** Dado que publico una versión nueva, entonces los datos existentes no se pierden.
 
+### Fase 8: Repetición, gastos por hacer y calendario
+
+- **F8-A1.** Dado que agrego "Seguro del auto" en noviembre con "Cada año" y día 10, entonces leo "Se repite cada año, en noviembre, el día 10.", aparece en noviembre y no en diciembre ni en octubre.
+- **F8-A2.** Dado un gasto "Cada 3 meses" agregado en noviembre, entonces aparece en noviembre y febrero, y no en diciembre ni enero. En febrero propone el monto de noviembre.
+- **F8-A3.** Dado los gastos recurrentes que ya existen, cuando actualizo la app, entonces todos quedan "Cada mes" y nada cambia.
+- **F8-A4.** Dado que anoto un gasto con "Lo voy a hacer" para el 28, entonces la tabla lo muestra como por hacer, no suma en lo gastado del Resumen, y "Ya lo hice" lo convierte en gasto normal de hoy.
+- **F8-A5.** Dado un gasto por hacer cuya fecha pasó, entonces muestra "¿Lo hiciste?"; "No lo hice" lo elimina y "Deshacer" lo devuelve.
+- **F8-A6.** Dado un mes con gastado, recurrentes por pagar y gastos por hacer, entonces el Calendario muestra el total estimado y los tres tramos suman ese total.
+- **F8-A7.** Dado que hago clic en un día con un recurrente pendiente, cuando hago clic en "Marcar pagado", entonces queda pagado en el Calendario y en Gastos recurrentes.
+- **F8-A8.** Dado el acumulado por semanas, entonces la última semana muestra el total estimado del mes.
+
 ### Fase 7: Descripción y comprobante
 
 - **F7-A1.** Dado que anoto un gasto con descripción "Remedios de la tía", entonces la tabla la muestra bajo la categoría y "Corregir" permite cambiarla o borrarla.
@@ -272,6 +298,7 @@ Formato: Dado, Cuando, Entonces. Cada criterio se verifica en la app andando.
 | 5. Publicación | Sitio estático, uso sin conexión, instalación en el Dock | Pasa PUB-A1 a PUB-A4 en el Mac de mi papá |
 | Prueba real | Dos o tres semanas de uso | Se revisan las métricas de la sección 4 |
 | 7. Cambios de noviembre 2026 | Descripción (NOR-1), comprobante (REC-12), aviso de respaldo semanal (RES-9) | Pasa F7-A1, F7-A2, F7-A5 y F7-A6 |
+| 8. Repetición, por hacer y calendario | REC-13, NOR-11, CAL-1 a CAL-5 | Pasa F8-A1 a F8-A8 |
 | 6. Cartola | `docs/cartola.md` | Criterios de ese documento |
 
 ## 12. Preguntas abiertas
