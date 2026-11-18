@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { Gasto } from './tipos';
 import {
+  fechaAlHacer,
+  fechaMaxima,
+  porHacerVencido,
+  textoPorHacer,
+  textoResumenGastos as resumenTabla,
+  opcionDeFecha as opcionDe,
   LARGO_DESCRIPCION,
   normalizarDescripcion,
   fechaDeOpcion,
@@ -23,6 +29,7 @@ function gasto(id: string, fecha: string, monto = 1000, creadoEn = '2026-11-17T1
     categoriaId: 'c',
     origen: 'manual',
     descripcion: null,
+    porHacer: false,
     glosa: null,
     movimientoId: null,
     creadoEn,
@@ -174,5 +181,52 @@ describe('normalizarDescripcion (fase 7)', () => {
   it('corta en 60 caracteres', () => {
     expect(normalizarDescripcion('a'.repeat(70))).toHaveLength(LARGO_DESCRIPCION);
     expect(LARGO_DESCRIPCION).toBe(60);
+  });
+});
+
+describe('gastos por hacer (NOR-11)', () => {
+  const HOY = '2026-11-18';
+
+  it('textos según la fecha', () => {
+    expect(textoPorHacer('2026-11-18', HOY)).toBe('Por hacer hoy');
+    expect(textoPorHacer('2026-11-19', HOY)).toBe('Por hacer mañana');
+    expect(textoPorHacer('2026-11-28', HOY)).toBe('Por hacer el sábado 28');
+    expect(textoPorHacer('2026-11-14', HOY)).toBe('¿Lo hiciste? Era el sábado 14');
+  });
+
+  it('vencido solo si es por hacer y su fecha pasó', () => {
+    expect(porHacerVencido({ porHacer: true, fecha: '2026-11-17' }, HOY)).toBe(true);
+    expect(porHacerVencido({ porHacer: true, fecha: '2026-11-18' }, HOY)).toBe(false);
+    expect(porHacerVencido({ porHacer: false, fecha: '2026-11-01' }, HOY)).toBe(false);
+  });
+
+  it('"Ya lo hice" deja hoy, o el último día de un mes pasado', () => {
+    expect(fechaAlHacer('2026-11-28', HOY)).toBe(HOY);
+    expect(fechaAlHacer('2026-11-10', HOY)).toBe(HOY);
+    expect(fechaAlHacer('2026-10-20', HOY)).toBe('2026-10-31');
+  });
+
+  it('acepta fechas hasta fin del mes actual, no más', () => {
+    expect(fechaMaxima(HOY, true)).toBe('2026-11-30');
+    expect(fechaMaxima(HOY, false)).toBe(HOY);
+    const base = { monto: 1000, categoriaId: 'x', hoy: HOY };
+    expect(validarGasto({ ...base, fecha: '2026-11-30', porHacer: true })).toEqual({});
+    expect(validarGasto({ ...base, fecha: '2026-12-01', porHacer: true }).fecha).toBe('Elige un día de este mes');
+    expect(validarGasto({ ...base, fecha: '2026-11-30' }).fecha).toBe('Elige un día que no sea futuro');
+  });
+
+  it('"Mañana" se marca al corregir un gasto por hacer de mañana', () => {
+    expect(opcionDe('2026-11-19', HOY, true)).toBe('manana');
+    expect(opcionDe('2026-11-17', HOY, false)).toBe('ayer');
+    expect(opcionDe('2026-11-17', HOY, true)).toBe('otro');
+  });
+
+  it('el encabezado de la tabla no suma lo por hacer y lo muestra aparte', () => {
+    const lista = [
+      gasto('a', '2026-11-10', 5000),
+      { ...gasto('b', '2026-11-28', 45000), porHacer: true },
+    ];
+    expect(resumenTabla(lista)).toBe('1 gasto, $5.000 en total · 1 por hacer, $45.000');
+    expect(resumenTabla([lista[0]!])).toBe('1 gasto, $5.000 en total');
   });
 });

@@ -102,6 +102,7 @@ function esGasto(v: unknown): v is Gasto {
     (v.monto as number) > 0 &&
     esTextoNoVacio(v.categoriaId) &&
     (v.descripcion === null || (esTexto(v.descripcion) && v.descripcion.length <= LARGO_DESCRIPCION)) &&
+    typeof v.porHacer === 'boolean' &&
     esOrigen(v.origen) &&
     textoONulo(v.glosa) &&
     textoONulo(v.movimientoId) &&
@@ -147,7 +148,8 @@ function migrar(respaldo: Objeto, version: number): Objeto {
     const gastosRecurrentes = Array.isArray(r.gastosRecurrentes)
       ? r.gastosRecurrentes.map((g: unknown) => (esObjeto(g) ? { cadaMeses: 1, ancla: g.desde, ...g } : g))
       : r.gastosRecurrentes;
-    r = { ...r, gastosRecurrentes };
+    const gastos = Array.isArray(r.gastos) ? r.gastos.map((g: unknown) => (esObjeto(g) ? { porHacer: false, ...g } : g)) : r.gastos;
+    r = { ...r, gastosRecurrentes, gastos };
   }
   return r;
 }

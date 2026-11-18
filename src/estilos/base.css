@@ -404,7 +404,7 @@ button:disabled {
 }
 
 .tabla__contenido {
-  min-width: 560px;
+  min-width: 700px;
 }
 
 /* Con la columna Comprobante (fase 7), el nombre del gasto conserva al menos 160 px. */
@@ -761,10 +761,13 @@ button:disabled {
 }
 
 .fila-gasto__accion {
-  width: 110px;
+  /* Ancho fijo: con "Ya lo hice" y "Corregir" los montos siguen alineados (NOR-11). */
+  width: 230px;
   flex-shrink: 0;
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: var(--espacio-4);
 }
 
 .tabla__encabezado.fila-gasto {
@@ -1138,4 +1141,47 @@ a.boton-secundario {
 .fila-recurrente__repeticion {
   font-weight: var(--peso-normal);
   color: var(--color-texto-secundario);
+}
+
+/* ---------- Gastos por hacer (fase 8, NOR-11) ---------- */
+
+/* Borde punteado, fondo suave, reloj y monto en gris: no depende solo del color. */
+.fila-gasto--por-hacer {
+  background: var(--color-fondo-suave);
+  outline: 2px dashed var(--color-divisor);
+  outline-offset: -6px;
+}
+
+.fila-gasto--por-hacer .fila-gasto__monto {
+  color: var(--color-texto-secundario);
+}
+
+.fila-gasto--vencido {
+  background: var(--color-alerta-fondo);
+  outline-color: var(--color-alerta-borde);
+}
+
+.estado--por-hacer {
+  color: var(--color-texto);
+  font-weight: var(--peso-fuerte);
+}
+
+.boton-hecho {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  min-height: var(--alto-minimo-clic);
+  padding: 0 var(--espacio-4);
+  border: 1px solid var(--color-borde-control);
+  border-radius: var(--radio-pildora);
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font: inherit;
+  font-weight: var(--peso-fuerte);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.boton-hecho:hover {
+  background: var(--color-acento);
 }

@@ -72,27 +72,33 @@ export function abrirBase(nombre: string = NOMBRE_BASE): Promise<BaseDeDatos> {
         }
         void transaccion.objectStore('ajustes').put(ajustesIniciales(), CLAVE_AJUSTES);
       }
-      if (versionAnterior >= 1 && versionAnterior < 2) {
-        // Versión 2 (fase 7): los gastos no recurrentes tienen descripción opcional.
-        void (async () => {
-          let cursor = await transaccion.objectStore('gastos').openCursor();
-          while (cursor) {
-            if (cursor.value.descripcion === undefined) await cursor.update({ ...cursor.value, descripcion: null });
-            cursor = await cursor.continue();
-          }
-        })();
-      }
       if (versionAnterior < 2) {
         // Versión 2 (fase 7): un comprobante por pago de gasto recurrente.
         db.createObjectStore('comprobantes', { keyPath: 'pagoId' });
       }
-      if (versionAnterior >= 1 && versionAnterior < 3) {
-        // Versión 3 (fase 8): repetición de los gastos recurrentes. Los que existen quedan mensuales.
+      if (versionAnterior >= 1 && versionAnterior < VERSION_ESQUEMA) {
+        /*
+         * Una sola pasada por cada almacén, completando los campos que falten.
+         * Así dos migraciones nunca escriben el mismo registro a la vez.
+         *   Versión 2 (fase 7): descripción de los gastos.
+         *   Versión 3 (fase 8): gastos por hacer y repetición de los recurrentes.
+         */
+        void (async () => {
+          let cursor = await transaccion.objectStore('gastos').openCursor();
+          while (cursor) {
+            const g = cursor.value as Partial<Gasto> & Gasto;
+            if (g.descripcion === undefined || g.porHacer === undefined) {
+              await cursor.update({ ...g, descripcion: g.descripcion ?? null, porHacer: g.porHacer ?? false });
+            }
+            cursor = await cursor.continue();
+          }
+        })();
         void (async () => {
           let cursor = await transaccion.objectStore('gastosRecurrentes').openCursor();
           while (cursor) {
-            if (cursor.value.cadaMeses === undefined) {
-              await cursor.update({ ...cursor.value, cadaMeses: 1, ancla: cursor.value.desde });
+            const g = cursor.value as Partial<GastoRecurrente> & GastoRecurrente;
+            if (g.cadaMeses === undefined || g.ancla === undefined) {
+              await cursor.update({ ...g, cadaMeses: g.cadaMeses ?? 1, ancla: g.ancla ?? g.desde });
             }
             cursor = await cursor.continue();
           }

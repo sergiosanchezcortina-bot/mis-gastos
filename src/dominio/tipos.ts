@@ -56,6 +56,7 @@ export type Gasto = {
   monto: number; // entero mayor que 0
   categoriaId: string;
   descripcion: string | null; // texto libre opcional, hasta 60 caracteres (fase 7)
+  porHacer: boolean; // fase 8: true = todavía no se hace; no cuenta como gastado
   origen: 'manual' | 'cartola';
   glosa: string | null; // fase 6
   movimientoId: string | null; // fase 6

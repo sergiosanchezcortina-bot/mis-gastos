@@ -12,7 +12,7 @@ import { guardarGasto, nuevoGasto } from '../datos/gastos';
 const HOY = '2026-11-16';
 let contador = 0;
 
-async function abrirPantalla(gastosIniciales: Array<{ fecha: string; monto: number; categoria?: string }> = []) {
+async function abrirPantalla(gastosIniciales: Array<{ fecha: string; monto: number; categoria?: string; porHacer?: boolean }> = []) {
   const db: BaseDeDatos = await abrirBase(`pantalla-nor-${Date.now()}-${contador++}`);
   const categorias = await leerCategorias(db);
   const idDe = (nombre: string) => categorias.find((c) => c.nombre === nombre)?.id ?? '';
@@ -20,7 +20,10 @@ async function abrirPantalla(gastosIniciales: Array<{ fecha: string; monto: numb
   for (const g of gastosIniciales) {
     await guardarGasto(
       db,
-      nuevoGasto({ monto: g.monto, fecha: g.fecha, categoriaId: idDe(g.categoria ?? 'Supermercado') }, `2026-11-01T00:00:${String(n++).padStart(2, '0')}`),
+      nuevoGasto(
+        { monto: g.monto, fecha: g.fecha, categoriaId: idDe(g.categoria ?? 'Supermercado'), porHacer: g.porHacer },
+        `2026-11-01T00:00:${String(n++).padStart(2, '0')}`,
+      ),
     );
   }
   const usuario = userEvent.setup();
@@ -356,7 +359,8 @@ describe('F7-A1 y F7-A2: descripción', () => {
     await waitFor(() => expect(filas()).toHaveLength(1));
     expect(filas()[0]).toHaveTextContent('Remedios de la tía');
     expect((await leerGastos(db))[0]?.descripcion).toBe('Remedios de la tía');
-    expect(campoDescripcion()).toHaveValue('');
+    // El formulario se vacía cuando termina de guardar, un instante después de que aparece la fila.
+    await waitFor(() => expect(campoDescripcion()).toHaveValue(''));
     expect(campoMonto()).toHaveFocus();
   });
 
@@ -398,5 +402,68 @@ describe('F7-A1 y F7-A2: descripción', () => {
     await waitFor(() => expect(screen.queryByRole('form', { name: 'Corregir gasto' })).not.toBeInTheDocument());
     expect(filas()[0]).not.toHaveTextContent('Remedios');
     expect((await leerGastos(db))[0]?.descripcion).toBeNull();
+  });
+});
+
+describe('F8-A4 y F8-A5: gastos por hacer', () => {
+  it('"Lo voy a hacer" guarda un gasto futuro que se ve distinto y no suma', async () => {
+    const { usuario, db } = await abrirPantalla([{ fecha: '2026-11-10', monto: 5000 }]);
+    await usuario.click(within(formulario()).getByRole('button', { name: 'Lo voy a hacer' }));
+    expect(within(formulario()).getByLabelText('1. ¿Cuánto vas a gastar?')).toBeInTheDocument();
+    expect(within(formulario()).getByRole('button', { name: 'Mañana' })).toBeInTheDocument();
+    await usuario.type(within(formulario()).getByLabelText('1. ¿Cuánto vas a gastar?'), '45000');
+    await usuario.click(within(formulario()).getByRole('button', { name: 'Otro día' }));
+    fireEvent.change(within(formulario()).getByLabelText('¿Qué día?'), { target: { value: '2026-11-28' } });
+    await usuario.click(botonCategoria('Familia'));
+    await usuario.click(guardar());
+
+    await waitFor(() => expect(filas()).toHaveLength(2));
+    const fila = filas().find((f) => f.textContent?.includes('Familia'))!;
+    expect(fila).toHaveClass('fila-gasto--por-hacer');
+    expect(fila).toHaveTextContent('Por hacer el sábado 28');
+    expect(tabla()).toHaveTextContent('1 gasto, $5.000 en total · 1 por hacer, $45.000');
+    expect((await leerGastos(db)).find((g) => g.monto === 45000)).toMatchObject({ porHacer: true, fecha: '2026-11-28' });
+    // El formulario vuelve a "Ya lo hice".
+    expect(within(formulario()).getByRole('button', { name: 'Ya lo hice' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('"Ya lo hice" lo convierte en gasto normal de hoy', async () => {
+    const { usuario, db } = await abrirPantalla();
+    await usuario.click(within(formulario()).getByRole('button', { name: 'Lo voy a hacer' }));
+    await usuario.type(within(formulario()).getByLabelText('1. ¿Cuánto vas a gastar?'), '20000');
+    await usuario.click(within(formulario()).getByRole('button', { name: 'Mañana' }));
+    await usuario.click(botonCategoria('Casa'));
+    await usuario.click(guardar());
+    await waitFor(() => expect(filas()).toHaveLength(1));
+    expect(filas()[0]).toHaveTextContent('Por hacer mañana');
+
+    await usuario.click(screen.getByRole('button', { name: 'Ya lo hice: Casa, $20.000' }));
+    await waitFor(() => expect(filas()[0]).not.toHaveClass('fila-gasto--por-hacer'));
+    expect(filas()[0]).toHaveTextContent('Hoy, lunes 16');
+    expect(tabla()).toHaveTextContent('1 gasto, $20.000 en total');
+    expect((await leerGastos(db))[0]).toMatchObject({ porHacer: false, fecha: HOY });
+  });
+
+  it('no acepta un día del mes siguiente', async () => {
+    const { usuario } = await abrirPantalla();
+    await usuario.click(within(formulario()).getByRole('button', { name: 'Lo voy a hacer' }));
+    await usuario.click(within(formulario()).getByRole('button', { name: 'Otro día' }));
+    expect(within(formulario()).getByLabelText('¿Qué día?')).toHaveAttribute('max', '2026-11-30');
+  });
+
+  it('F8-A5: si pasó la fecha pregunta "¿Lo hiciste?"; "No lo hice" lo elimina con confirmación y deshacer', async () => {
+    const { usuario, db } = await abrirPantalla([{ fecha: '2026-11-14', monto: 15000, categoria: 'Familia', porHacer: true }]);
+    await waitFor(() => expect(filas()).toHaveLength(1));
+    expect(filas()[0]).toHaveTextContent('¿Lo hiciste? Era el sábado 14');
+    expect(filas()[0]).toHaveClass('fila-gasto--vencido');
+
+    await usuario.click(screen.getByRole('button', { name: 'No lo hice: Familia, $15.000' }));
+    const confirmacion = screen.getByRole('alertdialog');
+    expect(confirmacion).toHaveTextContent('¿Eliminar el gasto por hacer de $15.000 en Familia del sábado 14?');
+    await usuario.click(within(confirmacion).getByRole('button', { name: 'Eliminar' }));
+    await waitFor(() => expect(filas()).toHaveLength(0));
+    await usuario.click(screen.getByRole('button', { name: 'Deshacer' }));
+    await waitFor(() => expect(filas()).toHaveLength(1));
+    expect((await leerGastos(db))[0]?.porHacer).toBe(true);
   });
 });

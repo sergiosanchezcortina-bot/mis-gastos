@@ -20,13 +20,14 @@ export async function eliminarGasto(db: BaseDeDatos, id: string): Promise<void> 
 
 /** Arma un gasto nuevo anotado a mano. */
 export function nuevoGasto(
-  datos: { monto: number; fecha: string; categoriaId: string; descripcion?: string | null },
+  datos: { monto: number; fecha: string; categoriaId: string; descripcion?: string | null; porHacer?: boolean },
   ahora: string,
 ): Gasto {
   return {
     id: crypto.randomUUID(),
     ...datos,
     descripcion: datos.descripcion ?? null,
+    porHacer: datos.porHacer ?? false,
     origen: 'manual',
     glosa: null,
     movimientoId: null,

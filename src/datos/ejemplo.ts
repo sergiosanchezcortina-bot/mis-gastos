@@ -136,6 +136,7 @@ export function crearDatosDeEjemplo(hoy: string = fechaLocal()): DatosCompletos 
           monto: elegir(MONTOS_POR_CATEGORIA[icono], azar),
           categoriaId,
           descripcion: azar() < 0.3 ? elegir(DESCRIPCIONES_POR_CATEGORIA[icono], azar) : null,
+          porHacer: false,
           origen: 'manual',
           glosa: null,
           movimientoId: null,

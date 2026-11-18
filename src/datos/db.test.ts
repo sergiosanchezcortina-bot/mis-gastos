@@ -26,6 +26,7 @@ function gasto(fecha: string, monto = 1000): Gasto {
     categoriaId: 'x',
     origen: 'manual',
     descripcion: null,
+    porHacer: false,
     glosa: null,
     movimientoId: null,
     creadoEn: '2026-11-17T10:00:00',
@@ -216,7 +217,7 @@ describe('migración de la versión 1 a la 2', () => {
     const db = await abrirBase(nombre);
     const gastos = await leerGastos(db);
     expect(gastos).toHaveLength(1);
-    expect(gastos[0]).toEqual({ ...antiguo, descripcion: null });
+    expect(gastos[0]).toEqual({ ...antiguo, descripcion: null, porHacer: false });
     // Y queda el almacén nuevo de comprobantes, vacío.
     expect((await leerTodo(db)).comprobantes).toEqual([]);
     db.close();

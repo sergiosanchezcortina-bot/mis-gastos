@@ -4,6 +4,7 @@ import { CampoMonto } from '../componentes/CampoMonto';
 import { MensajeError } from '../componentes/MensajeError';
 import {
   fechaDeOpcion,
+  fechaMaxima,
   LARGO_DESCRIPCION,
   normalizarDescripcion,
   opcionDeFecha,
@@ -12,8 +13,9 @@ import {
   type OpcionDia,
 } from '../dominio/gastos';
 import type { Categoria, Gasto } from '../dominio/tipos';
+import { diaSiguiente, mesDeFecha } from '../dominio/fechas';
 
-export type DatosGasto = { monto: number; fecha: string; categoriaId: string; descripcion: string | null };
+export type DatosGasto = { monto: number; fecha: string; categoriaId: string; descripcion: string | null; porHacer: boolean };
 
 type Props = {
   /** "agregar" queda vacío después de guardar; "corregir" parte con los datos del gasto. */
@@ -26,17 +28,29 @@ type Props = {
   alEliminar?: () => void;
 };
 
-const OPCIONES_DIA: Array<{ valor: OpcionDia; texto: string }> = [
+const OPCIONES_HECHO: Array<{ valor: OpcionDia; texto: string }> = [
   { valor: 'hoy', texto: 'Hoy' },
   { valor: 'ayer', texto: 'Ayer' },
   { valor: 'otro', texto: 'Otro día' },
 ];
 
+/** Para un gasto por hacer (NOR-11). "Mañana" no aparece el último día del mes. */
+function opcionesPorHacer(hoy: string): Array<{ valor: OpcionDia; texto: string }> {
+  const hayManana = mesDeFecha(diaSiguiente(hoy)) === mesDeFecha(hoy);
+  return [
+    { valor: 'hoy', texto: 'Hoy' },
+    ...(hayManana ? [{ valor: 'manana' as const, texto: 'Mañana' }] : []),
+    { valor: 'otro', texto: 'Otro día' },
+  ];
+}
+
 export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alCancelar, alEliminar }: Props) {
   const id = useId();
   const [monto, setMonto] = useState<number | null>(inicial?.monto ?? null);
-  const [opcion, setOpcion] = useState<OpcionDia>(inicial ? opcionDeFecha(inicial.fecha, hoy) : 'hoy');
-  const [otraFecha, setOtraFecha] = useState(inicial && opcionDeFecha(inicial.fecha, hoy) === 'otro' ? inicial.fecha : '');
+  const [porHacer, setPorHacer] = useState(inicial?.porHacer ?? false);
+  const opcionInicial = inicial ? opcionDeFecha(inicial.fecha, hoy, inicial.porHacer) : 'hoy';
+  const [opcion, setOpcion] = useState<OpcionDia>(opcionInicial);
+  const [otraFecha, setOtraFecha] = useState(inicial && opcionInicial === 'otro' ? inicial.fecha : '');
   const [categoriaId, setCategoriaId] = useState<string | null>(inicial?.categoriaId ?? null);
   const [descripcion, setDescripcion] = useState(inicial?.descripcion ?? '');
   const [errores, setErrores] = useState<ErroresGasto>({});
@@ -67,13 +81,22 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
     if (valor === 'otro') setTimeout(() => campoFecha.current?.focus());
   };
 
+  /** "¿Ya lo hiciste?" (NOR-11). Al cambiar, el día vuelve a "Hoy". */
+  const elegirPorHacer = (valor: boolean) => {
+    tocar();
+    setPorHacer(valor);
+    setOpcion('hoy');
+    setOtraFecha('');
+    setErrores(({ fecha: _, ...resto }) => resto);
+  };
+
   const enviar = async (evento: FormEvent) => {
     evento.preventDefault();
     // Un segundo clic mientras se guarda, o justo después, no crea otro gasto (NOR-A7).
     if (guardando.current || recienGuardado.current) return;
 
     const fecha = fechaDeOpcion(opcion, hoy, otraFecha);
-    const encontrados = validarGasto({ monto, fecha, categoriaId, hoy });
+    const encontrados = validarGasto({ monto, fecha, categoriaId, hoy, porHacer });
     setErrores(encontrados);
     if (encontrados.monto) return campoMonto.current?.focus();
     if (encontrados.fecha) return campoFecha.current?.focus();
@@ -82,13 +105,14 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
 
     guardando.current = true;
     try {
-      await alGuardar({ monto, fecha, categoriaId, descripcion: normalizarDescripcion(descripcion) });
+      await alGuardar({ monto, fecha, categoriaId, descripcion: normalizarDescripcion(descripcion), porHacer });
       recienGuardado.current = true;
     } finally {
       guardando.current = false;
     }
     if (modo === 'agregar') {
       setMonto(null);
+      setPorHacer(false);
       setOpcion('hoy');
       setOtraFecha('');
       setCategoriaId(null);
@@ -106,9 +130,23 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
     >
       {modo === 'agregar' && <h2 className="subtitulo">Agregar gasto</h2>}
 
+      <div className="campo-grupo">
+        <div id={`${id}-hecho`} className="campo-grupo__titulo">
+          ¿Ya lo hiciste?
+        </div>
+        <div className="opciones" role="group" aria-labelledby={`${id}-hecho`}>
+          <BotonOpcion forma="pildora" elegido={!porHacer} alElegir={() => elegirPorHacer(false)}>
+            Ya lo hice
+          </BotonOpcion>
+          <BotonOpcion forma="pildora" icono="reloj" elegido={porHacer} alElegir={() => elegirPorHacer(true)}>
+            Lo voy a hacer
+          </BotonOpcion>
+        </div>
+      </div>
+
       <div className="formulario-gasto__fila">
         <div className="campo-grupo">
-          <label htmlFor={`${id}-monto`}>1. ¿Cuánto gastaste?</label>
+          <label htmlFor={`${id}-monto`}>{porHacer ? '1. ¿Cuánto vas a gastar?' : '1. ¿Cuánto gastaste?'}</label>
           <CampoMonto
             ref={campoMonto}
             id={`${id}-monto`}
@@ -127,10 +165,10 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
 
         <div className="campo-grupo">
           <div id={`${id}-cuando`} className="campo-grupo__titulo">
-            2. ¿Cuándo fue?
+            {porHacer ? '2. ¿Cuándo lo vas a hacer?' : '2. ¿Cuándo fue?'}
           </div>
           <div className="opciones" role="group" aria-labelledby={`${id}-cuando`}>
-            {OPCIONES_DIA.map((o) => (
+            {(porHacer ? opcionesPorHacer(hoy) : OPCIONES_HECHO).map((o) => (
               <BotonOpcion key={o.valor} forma="pildora" elegido={opcion === o.valor} alElegir={() => elegirOpcion(o.valor)}>
                 {o.texto}
               </BotonOpcion>
@@ -144,7 +182,8 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
                 id={`${id}-fecha`}
                 className="campo campo--fecha"
                 type="date"
-                max={hoy}
+                min={porHacer ? `${mesDeFecha(hoy)}-01` : undefined}
+                max={fechaMaxima(hoy, porHacer)}
                 value={otraFecha}
                 onChange={(e) => {
                   tocar();

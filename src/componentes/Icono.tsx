@@ -20,6 +20,8 @@ const TRAZOS = {
   cerrar: 'M6 6l12 12M18 6L6 18',
   abajo: 'M6 9l6 6l6-6',
   alerta: 'M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0-18zM12 8v5M12 16.5h.01',
+  reloj: 'M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0-18zM12 7v5l3 2',
+  calendario: 'M5 6h14v14H5zM5 10h14M9 4v4M15 4v4',
   // Categorías
   supermercado: 'M3 5h2l2.4 10h9.8L20 8H6.2M9 19.5h.01M17 19.5h.01',
   salud: 'M7 4h10a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3zM12 8.5v7M8.5 12h7',

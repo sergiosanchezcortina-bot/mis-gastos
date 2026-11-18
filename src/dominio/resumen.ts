@@ -11,8 +11,14 @@ type Datos = { gastos: readonly Gasto[]; pagos: readonly PagoRecurrente[] };
 
 const fechaDelDia = (mes: string, dia: number) => `${mes}-${String(dia).padStart(2, '0')}`;
 
+/** Los gastos ya hechos de un mes. Los "por hacer" (NOR-11) no cuentan como gastado. */
 export function gastosDelMes(gastos: readonly Gasto[], mes: string): Gasto[] {
-  return gastos.filter((g) => mesDeFecha(g.fecha) === mes);
+  return gastos.filter((g) => !g.porHacer && mesDeFecha(g.fecha) === mes);
+}
+
+/** Los gastos por hacer de un mes (NOR-11). */
+export function porHacerDelMes(gastos: readonly Gasto[], mes: string): Gasto[] {
+  return gastos.filter((g) => g.porHacer && mesDeFecha(g.fecha) === mes);
 }
 
 export function pagadosDelMes(pagos: readonly PagoRecurrente[], mes: string): PagoRecurrente[] {
@@ -23,7 +29,7 @@ const suma = (montos: Array<number | null>) => montos.reduce<number>((t, m) => t
 
 /** Un mes tiene datos si tiene un gasto o un recurrente pagado. */
 export function tieneDatos({ gastos, pagos }: Datos, mes: string): boolean {
-  return gastos.some((g) => mesDeFecha(g.fecha) === mes) || pagos.some((p) => p.mes === mes && p.pagado);
+  return gastos.some((g) => !g.porHacer && mesDeFecha(g.fecha) === mes) || pagos.some((p) => p.mes === mes && p.pagado);
 }
 
 /** gastado(m) = recurrentes pagados + no recurrentes. */
@@ -128,6 +134,7 @@ export const MESES_EN_MES_A_MES = 4;
 export function primerMesConDatos({ gastos, pagos }: Datos): string | null {
   let primero: string | null = null;
   for (const g of gastos) {
+    if (g.porHacer) continue;
     const mes = mesDeFecha(g.fecha);
     if (primero === null || mes < primero) primero = mes;
   }

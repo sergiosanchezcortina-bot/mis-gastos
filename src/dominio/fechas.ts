@@ -118,6 +118,12 @@ export function diaAnterior(fecha: string): string {
   return fechaLocal(new Date(anio, mes - 1, dia - 1));
 }
 
+/** El día siguiente: "2026-12-31" -> "2027-01-01". */
+export function diaSiguiente(fecha: string): string {
+  const { anio, mes, dia } = partesFecha(fecha);
+  return fechaLocal(new Date(anio, mes - 1, dia + 1));
+}
+
 /** Nombre del día de la semana en minúscula: "lunes". */
 export function nombreDiaSemana(fecha: string): string {
   const { anio, mes, dia } = partesFecha(fecha);

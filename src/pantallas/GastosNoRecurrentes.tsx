@@ -4,6 +4,7 @@ import { DialogoConfirmacion } from '../componentes/DialogoConfirmacion';
 import { EncabezadoPantalla } from '../componentes/EncabezadoPantalla';
 import { mesDeFecha, nombreMes } from '../dominio/fechas';
 import {
+  fechaAlHacer,
   FILAS_VISIBLES,
   ordenarGastos,
   textoConfirmarEliminar,
@@ -78,6 +79,11 @@ export function GastosNoRecurrentes() {
     }
     setCorrigiendo(null);
     await guardarYMostrar({ ...gasto, ...datos, actualizadoEn: ahora() });
+  };
+
+  /** "Ya lo hice" (NOR-11): pasa a gasto normal con la fecha de hoy. */
+  const hacer = async (gasto: Gasto) => {
+    await guardarYMostrar({ ...gasto, porHacer: false, fecha: fechaAlHacer(gasto.fecha, hoy), actualizadoEn: ahora() });
   };
 
   const eliminar = async (gasto: Gasto) => {
@@ -168,6 +174,11 @@ export function GastosNoRecurrentes() {
                       alCorregir={() => {
                         setEliminado(null);
                         setCorrigiendo(gasto.id);
+                      }}
+                      alHacer={() => void hacer(gasto)}
+                      alNoHacer={() => {
+                        setEliminado(null);
+                        setPorEliminar(gasto);
                       }}
                     />
                   ),
