@@ -141,7 +141,24 @@ type Regla = {
 - **CAR-A12.** Dado cualquier carga, entonces en los datos guardados no hay número de cuenta, RUT, nombre ni saldos.
 - **CAR-A13.** Dado un archivo que informa el total de cargos, entonces la suma de los cargos leídos es igual a ese total.
 
-## 10. Qué falta para partir
+## 10. Decisiones del 17 de noviembre de 2026
+
+Mandan sobre lo anterior donde se contradigan. Ajustar las secciones 2 a 9 al partir la fase.
+
+- **Qué se sube.** El estado de cuenta de la **tarjeta de crédito**, en PDF, tal como se baja del banco. Lo sube el papá arrastrando el archivo o con "Elegir archivo".
+- **Sin IA.** Todo el análisis corre en el navegador con reglas fijas (secciones 4 y 5). Nada se envía a internet.
+- **Proponer y aceptar.** En vez de revisar uno por uno, la app muestra todo de una vez para aprobar:
+  - "Parece que ya lo anotaste": cada cargo junto al gasto manual con el que calza, para confirmar.
+  - "Gastos nuevos": cada cargo con la categoría propuesta, que se puede cambiar.
+  - "Gastos recurrentes": los cargos que calzan con uno y quedan pagados.
+  - Un botón agrega todo lo aprobado. "Deshacer esta carga" sigue disponible.
+- **Sin clasificar.** Lo que no calza con ninguna regla se propone como "Otro", con el nombre del comercio como descripción y la marca de que vino de la tarjeta.
+- **Cuotas.** Cada cuota es un gasto del mes en que se cobra.
+- **Intereses, comisiones e impuestos.** Van a "Intereses y comisiones" (pendiente: confirmar si es una categoría nueva).
+- **Pagos a la tarjeta y abonos.** No son gastos; se descartan.
+- **Comprobación.** La suma de los cargos leídos debe ser igual al total facturado del estado de cuenta. Si no cuadra, no se carga nada.
+
+## 11. Qué falta para partir
 
 1. El banco y el formato en que se baja la cartola.
 2. Un archivo real en `fixtures/cartolas/`.
