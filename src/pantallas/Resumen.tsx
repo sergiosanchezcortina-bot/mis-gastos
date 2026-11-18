@@ -6,12 +6,14 @@ import { Icono } from '../componentes/Icono';
 import { SelectorMes } from '../componentes/SelectorMes';
 import { Tarjeta } from '../componentes/Tarjeta';
 import { necesitaRespaldo } from '../dominio/avisoRespaldo';
+import { nombreMes } from '../dominio/fechas';
 import { formatearMonto } from '../dominio/montos';
 import { avancePagados, textoPagados, totalesRecurrentes } from '../dominio/recurrentes';
 import {
   etiquetaTotal,
   filasEnQueSeFue,
   filasMesAMes,
+  leyendaMesAMes,
   fraseComparacion,
   gastado,
   gastosDelMes,
@@ -114,6 +116,7 @@ export function Resumen({ irA }: Props) {
   }
 
   const frase = fraseComparacion(base, mes, hoy);
+  const filasMeses = filasMesAMes(base, mes, mesActual, datos.categorias);
 
   return (
     <>
@@ -143,8 +146,13 @@ export function Resumen({ irA }: Props) {
           gastosRecurrentes={datos.gastosRecurrentes}
           hoy={hoy}
         />
-        <MesAMes filas={filasMesAMes(base, mes, mesActual)} />
       </div>
+
+      <MesAMes
+        filas={filasMeses}
+        leyenda={leyendaMesAMes(base, filasMeses, mes, datos.categorias)}
+        nombreMesSeleccionado={nombreMes(mes)}
+      />
     </>
   );
 }

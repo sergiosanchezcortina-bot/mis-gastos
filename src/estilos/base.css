@@ -1024,3 +1024,139 @@ button:disabled {
   color: var(--color-texto-secundario);
   overflow-wrap: anywhere;
 }
+
+/* ---------- Mes a mes: gráfico de barras (fase 7, RES-6 y RES-10) ---------- */
+
+.mes-a-mes {
+  margin-top: var(--espacio-4);
+}
+
+.mes-a-mes__titulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  margin-bottom: var(--espacio-4);
+}
+
+.grafico {
+  display: flex;
+  align-items: stretch;
+  gap: var(--espacio-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--color-divisor);
+  padding-bottom: var(--espacio-2);
+}
+
+.grafico__columna {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espacio-1);
+}
+
+.grafico__monto {
+  font-weight: var(--peso-fuerte);
+  white-space: nowrap;
+}
+
+.grafico__area {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 180px;
+}
+
+.grafico__barra {
+  display: flex;
+  flex-direction: column-reverse;
+  width: 100%;
+  max-width: 64px;
+  min-height: 2px;
+  border-radius: 4px 4px 0 0;
+  overflow: hidden;
+  background: var(--color-barra);
+}
+
+.grafico__barra--acento {
+  background: var(--color-barra-actual);
+}
+
+.grafico__barra--tramos {
+  background: transparent;
+}
+
+.grafico__tramo {
+  flex-basis: 0;
+  min-height: 2px;
+}
+
+/* 2 px de separación entre tramos, para que no dependan solo del color. */
+.grafico__tramo + .grafico__tramo {
+  border-bottom: 2px solid var(--color-fondo);
+}
+
+.grafico__mes {
+  text-align: center;
+  color: var(--color-texto-secundario);
+  font-size: var(--texto-secundario);
+}
+
+.leyenda {
+  margin-top: var(--espacio-4);
+}
+
+.leyenda__titulo {
+  margin: 0 0 var(--espacio-2);
+  font-size: var(--texto-base);
+  font-weight: var(--peso-fuerte);
+}
+
+.leyenda__lista {
+  /* Columnas que se leen de arriba abajo, en el mismo orden de los tramos. */
+  columns: 240px;
+  column-gap: var(--espacio-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.leyenda__item {
+  display: flex;
+  align-items: center;
+  break-inside: avoid;
+  padding: var(--espacio-1) 0;
+  gap: var(--espacio-2);
+}
+
+.leyenda__muestra {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.leyenda__nombre {
+  flex-grow: 1;
+}
+
+.leyenda__monto {
+  font-weight: var(--peso-fuerte);
+}
+
+.tramo--recurrentes { background: var(--color-tramo-recurrentes); }
+.tramo--supermercado { background: var(--color-tramo-supermercado); }
+.tramo--salud { background: var(--color-tramo-salud); }
+.tramo--transporte { background: var(--color-tramo-transporte); }
+.tramo--casa { background: var(--color-tramo-casa); }
+.tramo--salidas { background: var(--color-tramo-salidas); }
+.tramo--familia { background: var(--color-tramo-familia); }
+.tramo--ropa { background: var(--color-tramo-ropa); }
+.tramo--otro { background: var(--color-tramo-otro); }
