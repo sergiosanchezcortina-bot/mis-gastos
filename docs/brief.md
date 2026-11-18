@@ -48,8 +48,8 @@ Quedan fuera a propósito. No agregar sin preguntar.
 - Presupuestos o límites por categoría.
 - Ingresos, saldos o patrimonio.
 - Varias cuentas, tarjetas o medios de pago.
-- Subcategorías, etiquetas o notas en los gastos.
-- Fotos de boletas.
+- Subcategorías o etiquetas en los gastos. (La descripción opcional de un gasto no recurrente se agregó en la fase 7.)
+- Fotos de boletas en los gastos no recurrentes. (El comprobante de un gasto recurrente se agregó en la fase 7.)
 - Usuarios, contraseñas o sincronización entre dispositivos.
 - Versión para celular.
 - Notificaciones.
@@ -97,7 +97,8 @@ Referencia: `design/pantallas/resumen.html`.
   - "Te falta pagar": suma de los recurrentes sin pagar y el enlace "Ver los 3 gastos pendientes", que lleva a Gastos recurrentes. Usa estilo de alerta. Si no falta nada, dice "Todo pagado" y pierde el estilo de alerta.
 - **RES-4.** "¿En qué se fue?": una fila para "Gastos recurrentes" (lo pagado) y una por cada categoría con gasto mayor que cero, ordenadas de mayor a menor. Cada fila lleva ícono, nombre, monto y una barra cuyo largo es proporcional a la fila mayor. Las categorías sin gasto no aparecen.
 - **RES-5.** Al hacer clic en una fila de "¿En qué se fue?", se despliega debajo la lista de sus gastos (fecha y monto). Otro clic la cierra. Solo una fila abierta a la vez.
-- **RES-6.** "Mes a mes": hasta los cuatro meses más recientes con datos, incluido el seleccionado. Cada uno con nombre, total y barra. El mes en curso se rotula "Noviembre, hasta hoy" y su barra usa el color de acento.
+- **RES-6.** "Mes a mes" (cambiado en la fase 7): gráfico de barras verticales con hasta los seis meses más recientes con datos, incluido el seleccionado. Cada barra lleva el nombre del mes y el total escrito; su alto es proporcional al mes mayor. El mes en curso se rotula "Noviembre, hasta hoy" y su barra usa el color de acento.
+- **RES-10.** Junto al título de "Mes a mes", el botón "Por categorías". Al apretarlo, cada barra se divide en tramos apilados: uno para "Gastos recurrentes" y uno por categoría con gasto ese mes. Bajo el gráfico aparece una leyenda con muestra de color, nombre y monto de cada tramo del mes seleccionado, en el mismo orden de los tramos. Otro clic vuelve al total. El botón muestra si está activo con un ícono, no solo con color.
 - **RES-7.** Botón principal "Agregar gasto": lleva a Gastos no recurrentes con el cursor en el campo de monto.
 - **RES-8.** Estado vacío (mes sin ningún gasto): "Todavía no hay gastos este mes." y el botón "Agregar gasto". No se muestran tarjetas ni barras en cero.
 - **RES-9.** Aviso de respaldo (desde la fase 4): si pasaron más de 30 días desde el último respaldo, muestra "Hace más de un mes que no haces un respaldo." con el botón "Hacer respaldo ahora".
@@ -122,6 +123,7 @@ Referencia: `design/pantallas/gastos-recurrentes.html`.
 - **REC-9.** "Editar lista" muestra en cada fila las acciones "Cambiar nombre o día" y "Quitar". Quitar pide confirmación: "¿Quitar Gas de tus gastos recurrentes? Los meses anteriores no cambian." El gasto deja de aparecer desde el mes seleccionado. Si en ese mes ya estaba pagado, ese mes se conserva y deja de aparecer desde el siguiente. Después de quitar: "Se quitó Gas. Deshacer".
 - **REC-10.** Los meses pasados se pueden corregir igual que el actual.
 - **REC-11.** Estado vacío: "Todavía no tienes gastos recurrentes." y el botón "Agregar gasto recurrente".
+- **REC-12.** Comprobante (fase 7): cada gasto recurrente de cada mes puede tener un comprobante, opcional y solo uno: una imagen, un PDF u otro archivo de hasta 10 MB. Sin comprobante, la fila muestra el botón "Agregar comprobante", que abre el selector de archivos. Con comprobante, muestra el botón "Comprobante" con un ícono de check. Al hacer clic se abre una ventana con la vista previa (imagen o PDF; otro tipo muestra su nombre y "Descargar") y los botones "Cambiar", "Quitar comprobante" y "Cerrar". Quitar pide confirmación y ofrece deshacer. Los comprobantes quedan en el computador y van dentro del respaldo.
 
 #### Gastos no recurrentes
 
@@ -131,13 +133,14 @@ Referencia: `design/pantallas/gastos-no-recurrentes.html`.
   1. "¿Cuánto gastaste?": campo de monto. Solo dígitos, con formato de miles mientras se escribe. Máximo 8 dígitos.
   2. "¿Cuándo fue?": tres botones, "Hoy" (seleccionado por defecto), "Ayer" y "Otro día". "Otro día" muestra un selector de fecha que no acepta fechas futuras.
   3. "¿En qué fue?": un botón por categoría visible, con ícono y texto. Se elige una.
+  4. "Descripción (opcional)": texto libre de hasta 60 caracteres (fase 7).
 - **NOR-2.** "Guardar gasto" guarda. La tecla Enter hace lo mismo.
 - **NOR-3.** Validación al guardar, con el mensaje junto al campo: "Escribe cuánto gastaste" si el monto está vacío o es cero; "Elige en qué fue" si falta la categoría.
 - **NOR-4.** Después de guardar: el gasto aparece como primera fila de la tabla, el formulario queda vacío, "Hoy" vuelve a estar seleccionado y el cursor vuelve al monto. Si el gasto es de otro mes, la vista cambia a ese mes.
-- **NOR-5.** Tabla "Gastos de noviembre" con cantidad y total del mes en el encabezado. Columnas: Fecha, Categoría (ícono y nombre), Monto y la acción "Corregir". Orden: del más reciente al más antiguo.
+- **NOR-5.** Tabla "Gastos de noviembre" con cantidad y total del mes en el encabezado. Columnas: Fecha, Categoría (ícono y nombre, con la descripción debajo si la hay), Monto y la acción "Corregir". Orden: del más reciente al más antiguo.
 - **NOR-6.** Las fechas se leen "Hoy, lunes 16", "Ayer, domingo 15" y, para el resto, "Sábado 14".
 - **NOR-7.** La tabla muestra los 10 gastos más recientes. Si hay más, un botón "Ver los 14 gastos del mes" los despliega todos.
-- **NOR-8.** "Corregir" convierte la fila en un formulario con los mismos tres campos y las acciones "Guardar cambios", "Eliminar gasto" y "Cancelar".
+- **NOR-8.** "Corregir" convierte la fila en un formulario con los mismos campos y las acciones "Guardar cambios", "Eliminar gasto" y "Cancelar".
 - **NOR-9.** "Eliminar gasto" pide confirmación. Después muestra "Gasto eliminado. Deshacer" hasta la siguiente acción.
 - **NOR-10.** Estado vacío: "Todavía no anotas gastos este mes. Usa el formulario de arriba."
 
@@ -251,6 +254,15 @@ Formato: Dado, Cuando, Entonces. Cada criterio se verifica en la app andando.
 - **PUB-A3.** Dado que reinicio el Mac, entonces los datos siguen ahí.
 - **PUB-A4.** Dado que publico una versión nueva, entonces los datos existentes no se pierden.
 
+### Fase 7: Descripción, gráfico y comprobante
+
+- **F7-A1.** Dado que anoto un gasto con descripción "Remedios de la tía", entonces la tabla la muestra bajo la categoría y "Corregir" permite cambiarla o borrarla.
+- **F7-A2.** Dado que anoto un gasto sin descripción, entonces se guarda igual que antes, con monto, categoría y Enter.
+- **F7-A3.** Dado datos en ocho meses, entonces "Mes a mes" muestra seis barras, cada una con su total escrito.
+- **F7-A4.** Dado que aprieto "Por categorías", entonces cada barra se divide en tramos que suman su total y aparece la leyenda con nombres y montos.
+- **F7-A5.** Dado que agrego un comprobante a "Luz", entonces la fila muestra "Comprobante" con check, y al hacer clic veo la vista previa.
+- **F7-A6.** Dado que descargo un respaldo con comprobantes y lo restauro, entonces los comprobantes siguen ahí. Un respaldo antiguo (versión 1) se restaura sin errores.
+
 ## 11. Plan de lanzamiento e hitos
 
 | Fase | Qué incluye | Hecho cuando |
@@ -262,6 +274,7 @@ Formato: Dado, Cuando, Entonces. Cada criterio se verifica en la app andando.
 | 4. Ajustes y respaldo | AJU-1 a AJU-3 y RES-9 | Pasa AJU-A1 a AJU-A7 |
 | 5. Publicación | Sitio estático, uso sin conexión, instalación en el Dock | Pasa PUB-A1 a PUB-A4 en el Mac de mi papá |
 | Prueba real | Dos o tres semanas de uso | Se revisan las métricas de la sección 4 |
+| 7. Cambios de noviembre 2026 | Descripción (NOR-1), gráfico mes a mes (RES-6, RES-10), comprobante (REC-12) | Pasa F7-A1 a F7-A6 |
 | 6. Cartola | `docs/cartola.md` | Criterios de ese documento |
 
 ## 12. Preguntas abiertas

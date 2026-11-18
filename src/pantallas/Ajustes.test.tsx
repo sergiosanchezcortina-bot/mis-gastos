@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '../App';
-import { abrirBase, guardarAjustes, leerTodo, reemplazarTodo, type BaseDeDatos } from '../datos/db';
+import { abrirBase, guardarAjustes, leerTodo, reemplazarTodo, VERSION_ESQUEMA, type BaseDeDatos } from '../datos/db';
 import { crearDatosDeEjemplo } from '../datos/ejemplo';
 import { nuevoGasto } from '../datos/gastos';
 import { crearRespaldo, textoRespaldo } from '../respaldo/exportar';
@@ -182,7 +182,7 @@ describe('AJU-A5: restaurar un respaldo válido', () => {
     expect(porId(despues.gastosRecurrentes)).toEqual(porId(archivo.gastosRecurrentes));
     expect(porId(despues.pagosRecurrentes)).toEqual(porId(archivo.pagosRecurrentes));
     expect(porId(despues.gastos)).toEqual(porId(archivo.gastos));
-    expect(despues.ajustes).toEqual({ versionEsquema: 1, ultimoRespaldo: '2026-11-02T08:15:00' });
+    expect(despues.ajustes).toEqual({ versionEsquema: VERSION_ESQUEMA, ultimoRespaldo: '2026-11-02T08:15:00' });
     expect(screen.getByText('Último respaldo: 2 de noviembre de 2026.')).toBeInTheDocument();
 
     await usuario.click(screen.getByRole('button', { name: 'Deshacer' }));

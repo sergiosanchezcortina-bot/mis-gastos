@@ -14,6 +14,7 @@ import type {
 import { esFechaValida, partesMes } from '../dominio/fechas';
 import { VERSION_ESQUEMA } from '../datos/db';
 import { APP_RESPALDO } from './formato';
+import { LARGO_DESCRIPCION } from '../dominio/gastos';
 
 export const MENSAJES_RESPALDO = {
   noEsRespaldo: 'Este archivo no es un respaldo de Mis gastos.',
@@ -96,6 +97,7 @@ function esGasto(v: unknown): v is Gasto {
     esEnteroNoNegativo(v.monto) &&
     (v.monto as number) > 0 &&
     esTextoNoVacio(v.categoriaId) &&
+    (v.descripcion === null || (esTexto(v.descripcion) && v.descripcion.length <= LARGO_DESCRIPCION)) &&
     esOrigen(v.origen) &&
     textoONulo(v.glosa) &&
     textoONulo(v.movimientoId) &&
@@ -108,12 +110,17 @@ const sinRepetidos = (lista: Array<{ id: string }>) => new Set(lista.map((x) => 
 
 /**
  * Lleva un respaldo de una versión anterior del esquema a la actual.
- * Hoy solo existe la versión 1. Cada versión nueva agrega aquí su paso, en orden:
- *   if (version < 2) { ...cambios de la 1 a la 2...; version = 2; }
+ * Cada versión nueva agrega aquí su paso, en orden.
  */
 function migrar(respaldo: Objeto, version: number): Objeto {
   if (version > VERSION_ESQUEMA) throw new RangeError('Versión más nueva');
-  return respaldo;
+  let r = respaldo;
+  if (version < 2) {
+    // Versión 2 (fase 7): descripción en los gastos no recurrentes.
+    const gastos = Array.isArray(r.gastos) ? r.gastos.map((g: unknown) => (esObjeto(g) ? { ...g, descripcion: null } : g)) : r.gastos;
+    r = { ...r, gastos };
+  }
+  return r;
 }
 
 export function leerRespaldo(texto: string): ResultadoLectura {

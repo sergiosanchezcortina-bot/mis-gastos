@@ -14,7 +14,7 @@ import type {
 import { mesDeFecha } from '../dominio/fechas';
 
 export const NOMBRE_BASE = 'mis-gastos';
-export const VERSION_ESQUEMA = 1;
+export const VERSION_ESQUEMA = 2;
 const CLAVE_AJUSTES = 'ajustes';
 
 interface EsquemaMisGastos extends DBSchema {
@@ -69,6 +69,16 @@ export function abrirBase(nombre: string = NOMBRE_BASE): Promise<BaseDeDatos> {
           void transaccion.objectStore('categorias').put(categoria);
         }
         void transaccion.objectStore('ajustes').put(ajustesIniciales(), CLAVE_AJUSTES);
+      }
+      if (versionAnterior >= 1 && versionAnterior < 2) {
+        // Versión 2 (fase 7): los gastos no recurrentes tienen descripción opcional.
+        void (async () => {
+          let cursor = await transaccion.objectStore('gastos').openCursor();
+          while (cursor) {
+            if (cursor.value.descripcion === undefined) await cursor.update({ ...cursor.value, descripcion: null });
+            cursor = await cursor.continue();
+          }
+        })();
       }
       // Las migraciones de versiones futuras van aquí, una por versión.
     },

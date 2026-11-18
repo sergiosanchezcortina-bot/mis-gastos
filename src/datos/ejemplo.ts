@@ -23,6 +23,18 @@ const RECURRENTES: Array<{ nombre: string; dia: number | null; monto: number }> 
   { nombre: 'Seguro del auto', dia: 28, monto: 42000 },
 ];
 
+/** Algunos gastos de ejemplo llevan descripción (fase 7). */
+const DESCRIPCIONES_POR_CATEGORIA = {
+  supermercado: ['Feria', 'Pan y leche', 'Compra del mes'],
+  salud: ['Remedios', 'Consulta médica'],
+  transporte: ['Bencina', 'Taxi'],
+  casa: ['Ferretería', 'Gasfíter'],
+  salidas: ['Almuerzo con amigos', 'Cine'],
+  familia: ['Regalo nieto', 'Cumpleaños'],
+  ropa: ['Zapatos'],
+  otro: ['Peluquería'],
+} as const;
+
 const MONTOS_POR_CATEGORIA: Record<ClaveIcono, number[]> = {
   supermercado: [23500, 41200, 18900, 35600, 12300, 27800],
   salud: [8500, 12990, 24000],
@@ -117,6 +129,7 @@ export function crearDatosDeEjemplo(hoy: string = fechaLocal()): DatosCompletos 
           fecha: fechaDelMes(mes, dia),
           monto: elegir(MONTOS_POR_CATEGORIA[icono], azar),
           categoriaId,
+          descripcion: azar() < 0.3 ? elegir(DESCRIPCIONES_POR_CATEGORIA[icono], azar) : null,
           origen: 'manual',
           glosa: null,
           movimientoId: null,

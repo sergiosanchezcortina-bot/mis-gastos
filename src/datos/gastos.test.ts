@@ -30,6 +30,7 @@ describe('datos de gastos no recurrentes', () => {
   it('un gasto nuevo es manual y sin datos de cartola', () => {
     expect(nuevoGasto({ monto: 1, fecha: '2026-11-16', categoriaId: 'c' }, 'x')).toMatchObject({
       origen: 'manual',
+      descripcion: null,
       glosa: null,
       movimientoId: null,
       creadoEn: 'x',

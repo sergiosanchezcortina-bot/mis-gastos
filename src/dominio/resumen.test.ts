@@ -21,6 +21,7 @@ function g(fecha: string, monto: number, categoriaId = 'super'): Gasto {
     monto,
     categoriaId,
     origen: 'manual',
+    descripcion: null,
     glosa: null,
     movimientoId: null,
     creadoEn: `${fecha}T10:00:${String(n % 60).padStart(2, '0')}`,

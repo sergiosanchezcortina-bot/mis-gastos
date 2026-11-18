@@ -1,3 +1,4 @@
+import { openDB } from 'idb';
 import { describe, expect, it } from 'vitest';
 import type { Gasto, PagoRecurrente } from '../dominio/tipos';
 import {
@@ -10,6 +11,7 @@ import {
   primerMesConDatos,
   reemplazarTodo,
   vaciarTodo,
+  VERSION_ESQUEMA,
 } from './db';
 import { crearDatosDeEjemplo } from './ejemplo';
 
@@ -23,6 +25,7 @@ function gasto(fecha: string, monto = 1000): Gasto {
     monto,
     categoriaId: 'x',
     origen: 'manual',
+    descripcion: null,
     glosa: null,
     movimientoId: null,
     creadoEn: '2026-11-17T10:00:00',
@@ -61,9 +64,9 @@ describe('base de datos', () => {
     db.close();
   });
 
-  it('parte con versión de esquema 1 y sin respaldo', async () => {
+  it('parte con la versión de esquema actual y sin respaldo', async () => {
     const db = await abrirBase(nombreNuevo());
-    expect(await leerAjustes(db)).toEqual({ versionEsquema: 1, ultimoRespaldo: null });
+    expect(await leerAjustes(db)).toEqual({ versionEsquema: VERSION_ESQUEMA, ultimoRespaldo: null });
     db.close();
   });
 
@@ -188,5 +191,32 @@ describe('datos de ejemplo', () => {
     const enero = crearDatosDeEjemplo('2027-01-10');
     const meses = new Set(enero.pagosRecurrentes.map((p) => p.mes));
     expect([...meses].sort()).toEqual(['2026-08', '2026-09', '2026-10', '2026-11', '2026-12', '2027-01']);
+  });
+});
+
+describe('migración de la versión 1 a la 2', () => {
+  it('los gastos guardados antes quedan sin descripción y no se pierde nada', async () => {
+    const nombre = nombreNuevo();
+    // Una base como la que dejó la versión 1.0 de la app.
+    const v1 = await openDB(nombre, 1, {
+      upgrade(db) {
+        db.createObjectStore('categorias', { keyPath: 'id' });
+        db.createObjectStore('gastosRecurrentes', { keyPath: 'id' });
+        const pagos = db.createObjectStore('pagosRecurrentes', { keyPath: 'id' });
+        pagos.createIndex('porMes', 'mes');
+        pagos.createIndex('porGastoRecurrente', 'gastoRecurrenteId');
+        db.createObjectStore('gastos', { keyPath: 'id' }).createIndex('porFecha', 'fecha');
+        db.createObjectStore('ajustes');
+      },
+    });
+    const { descripcion: _, ...antiguo } = gasto('2026-10-05', 4500);
+    await v1.put('gastos', antiguo);
+    v1.close();
+
+    const db = await abrirBase(nombre);
+    const gastos = await leerGastos(db);
+    expect(gastos).toHaveLength(1);
+    expect(gastos[0]).toEqual({ ...antiguo, descripcion: null });
+    db.close();
   });
 });

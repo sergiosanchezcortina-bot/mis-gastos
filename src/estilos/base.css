@@ -1005,3 +1005,22 @@ button:disabled {
   flex: 1 1 260px;
   font-weight: var(--peso-fuerte);
 }
+
+/* ---------- Descripción de un gasto (fase 7) ---------- */
+
+.ayuda-en-linea {
+  font-weight: var(--peso-normal);
+  color: var(--color-texto-secundario);
+}
+
+.fila-gasto__textos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.fila-gasto__descripcion {
+  font-size: var(--texto-secundario);
+  color: var(--color-texto-secundario);
+  overflow-wrap: anywhere;
+}

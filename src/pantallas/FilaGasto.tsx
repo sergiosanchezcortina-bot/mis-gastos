@@ -19,7 +19,10 @@ export function FilaGasto({ gasto, categoria, hoy, alCorregir }: Props) {
       <div className="fila-gasto__fecha">{fecha}</div>
       <div className="fila-gasto__categoria">
         {categoria && <Icono nombre={categoria.icono} />}
-        <span>{nombre}</span>
+        <span className="fila-gasto__textos">
+          <span>{nombre}</span>
+          {gasto.descripcion && <span className="fila-gasto__descripcion">{gasto.descripcion}</span>}
+        </span>
       </div>
       <div className="fila-gasto__monto">{monto}</div>
       <div className="fila-gasto__accion">

@@ -75,6 +75,16 @@ export const MENSAJES = {
   fechaFutura: 'Elige un día que no sea futuro',
 } as const;
 
+// ---------- Descripción (fase 7) ----------
+
+export const LARGO_DESCRIPCION = 60;
+
+/** Quita espacios sobrantes. Un texto vacío queda como "sin descripción". */
+export function normalizarDescripcion(texto: string): string | null {
+  const limpio = texto.trim().replace(/\s+/g, ' ').slice(0, LARGO_DESCRIPCION);
+  return limpio === '' ? null : limpio;
+}
+
 export function validarGasto(datos: {
   monto: number | null;
   fecha: string;

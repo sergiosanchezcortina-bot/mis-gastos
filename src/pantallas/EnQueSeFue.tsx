@@ -18,7 +18,11 @@ type Detalle = { id: string; texto: string; monto: number };
 /** Lo que se ve al abrir una fila (RES-5). Recurrentes: nombre y monto. Categorías: fecha y monto. */
 function detalleDe(fila: FilaEnQueSeFue, recurrentes: Map<string, GastoRecurrente>, hoy: string): Detalle[] {
   if (fila.tipo === 'categoria') {
-    return fila.gastos.map((g) => ({ id: g.id, texto: textoFechaGasto(g.fecha, hoy), monto: g.monto }));
+    return fila.gastos.map((g) => ({
+      id: g.id,
+      texto: g.descripcion ? `${textoFechaGasto(g.fecha, hoy)}: ${g.descripcion}` : textoFechaGasto(g.fecha, hoy),
+      monto: g.monto,
+    }));
   }
   return fila.pagos
     .map((p) => ({ pago: p, gasto: recurrentes.get(p.gastoRecurrenteId) }))

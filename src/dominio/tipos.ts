@@ -50,6 +50,7 @@ export type Gasto = {
   fecha: string;
   monto: number; // entero mayor que 0
   categoriaId: string;
+  descripcion: string | null; // texto libre opcional, hasta 60 caracteres (fase 7)
   origen: 'manual' | 'cartola';
   glosa: string | null; // fase 6
   movimientoId: string | null; // fase 6

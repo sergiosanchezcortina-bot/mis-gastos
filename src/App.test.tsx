@@ -107,6 +107,7 @@ describe('selector de mes', () => {
       monto: 5000,
       categoriaId: 'x',
       origen: 'manual',
+      descripcion: null,
       glosa: null,
       movimientoId: null,
       creadoEn: '2026-11-17T10:00:00',

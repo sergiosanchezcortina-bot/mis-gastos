@@ -73,6 +73,7 @@ type Gasto = {
   fecha: string;                   // AAAA-MM-DD
   monto: number;                   // entero mayor que 0
   categoriaId: string;
+  descripcion: string | null;      // texto libre opcional, hasta 60 caracteres (esquema 2)
   origen: 'manual' | 'cartola';
   glosa: string | null;            // fase 6: texto de la cartola
   movimientoId: string | null;     // fase 6

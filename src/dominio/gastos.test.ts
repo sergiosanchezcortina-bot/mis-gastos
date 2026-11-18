@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { Gasto } from './tipos';
 import {
+  LARGO_DESCRIPCION,
+  normalizarDescripcion,
   fechaDeOpcion,
   opcionDeFecha,
   ordenarGastos,
@@ -20,6 +22,7 @@ function gasto(id: string, fecha: string, monto = 1000, creadoEn = '2026-11-17T1
     monto,
     categoriaId: 'c',
     origen: 'manual',
+    descripcion: null,
     glosa: null,
     movimientoId: null,
     creadoEn,
@@ -155,5 +158,21 @@ describe('textoConfirmarEliminar', () => {
     expect(textoConfirmarEliminar({ monto: 8500, fecha: '2026-11-15' }, 'Salud', hoy)).toBe(
       '¿Eliminar el gasto de $8.500 en Salud de ayer?',
     );
+  });
+});
+
+describe('normalizarDescripcion (fase 7)', () => {
+  it('vacía o solo espacios queda sin descripción', () => {
+    expect(normalizarDescripcion('')).toBeNull();
+    expect(normalizarDescripcion('   ')).toBeNull();
+  });
+
+  it('quita espacios sobrantes', () => {
+    expect(normalizarDescripcion('  Remedios   de la  tía ')).toBe('Remedios de la tía');
+  });
+
+  it('corta en 60 caracteres', () => {
+    expect(normalizarDescripcion('a'.repeat(70))).toHaveLength(LARGO_DESCRIPCION);
+    expect(LARGO_DESCRIPCION).toBe(60);
   });
 });

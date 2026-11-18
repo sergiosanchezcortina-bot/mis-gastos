@@ -2,10 +2,18 @@ import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { BotonOpcion } from '../componentes/BotonOpcion';
 import { CampoMonto } from '../componentes/CampoMonto';
 import { MensajeError } from '../componentes/MensajeError';
-import { fechaDeOpcion, opcionDeFecha, validarGasto, type ErroresGasto, type OpcionDia } from '../dominio/gastos';
+import {
+  fechaDeOpcion,
+  LARGO_DESCRIPCION,
+  normalizarDescripcion,
+  opcionDeFecha,
+  validarGasto,
+  type ErroresGasto,
+  type OpcionDia,
+} from '../dominio/gastos';
 import type { Categoria, Gasto } from '../dominio/tipos';
 
-export type DatosGasto = { monto: number; fecha: string; categoriaId: string };
+export type DatosGasto = { monto: number; fecha: string; categoriaId: string; descripcion: string | null };
 
 type Props = {
   /** "agregar" queda vacío después de guardar; "corregir" parte con los datos del gasto. */
@@ -30,6 +38,7 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
   const [opcion, setOpcion] = useState<OpcionDia>(inicial ? opcionDeFecha(inicial.fecha, hoy) : 'hoy');
   const [otraFecha, setOtraFecha] = useState(inicial && opcionDeFecha(inicial.fecha, hoy) === 'otro' ? inicial.fecha : '');
   const [categoriaId, setCategoriaId] = useState<string | null>(inicial?.categoriaId ?? null);
+  const [descripcion, setDescripcion] = useState(inicial?.descripcion ?? '');
   const [errores, setErrores] = useState<ErroresGasto>({});
   const guardando = useRef(false);
   /**
@@ -73,7 +82,7 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
 
     guardando.current = true;
     try {
-      await alGuardar({ monto, fecha, categoriaId });
+      await alGuardar({ monto, fecha, categoriaId, descripcion: normalizarDescripcion(descripcion) });
       recienGuardado.current = true;
     } finally {
       guardando.current = false;
@@ -83,6 +92,7 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
       setOpcion('hoy');
       setOtraFecha('');
       setCategoriaId(null);
+      setDescripcion('');
       campoMonto.current?.focus();
     }
   };
@@ -172,6 +182,25 @@ export function FormularioGasto({ modo, categorias, hoy, inicial, alGuardar, alC
           ))}
         </div>
         {errores.categoria && <MensajeError id={`${id}-error-categoria`} texto={errores.categoria} />}
+      </div>
+
+      <div className="campo-grupo">
+        <label htmlFor={`${id}-descripcion`}>
+          4. Descripción <span className="ayuda-en-linea">(opcional)</span>
+        </label>
+        <input
+          id={`${id}-descripcion`}
+          className="campo campo--texto"
+          type="text"
+          maxLength={LARGO_DESCRIPCION}
+          autoComplete="off"
+          placeholder="Por ejemplo: remedios de la tía"
+          value={descripcion}
+          onChange={(e) => {
+            tocar();
+            setDescripcion(e.target.value);
+          }}
+        />
       </div>
 
       {modo === 'agregar' ? (

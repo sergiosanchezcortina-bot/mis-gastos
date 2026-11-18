@@ -343,3 +343,60 @@ describe('NOR-A10: mes sin gastos', () => {
     expect(screen.getByRole('heading', { name: 'Gastos de noviembre' })).toBeInTheDocument();
   });
 });
+
+describe('F7-A1 y F7-A2: descripción', () => {
+  const campoDescripcion = () => within(formulario()).getByLabelText(/^4\. Descripción/);
+
+  it('se anota con el gasto y aparece bajo la categoría', async () => {
+    const { usuario, db } = await abrirPantalla();
+    await usuario.type(campoMonto(), '8500');
+    await usuario.click(botonCategoria('Salud'));
+    await usuario.type(campoDescripcion(), '  Remedios de la tía {Enter}');
+
+    await waitFor(() => expect(filas()).toHaveLength(1));
+    expect(filas()[0]).toHaveTextContent('Remedios de la tía');
+    expect((await leerGastos(db))[0]?.descripcion).toBe('Remedios de la tía');
+    expect(campoDescripcion()).toHaveValue('');
+    expect(campoMonto()).toHaveFocus();
+  });
+
+  it('sin descripción se guarda igual que antes', async () => {
+    const { usuario, db } = await abrirPantalla();
+    await usuario.type(campoMonto(), '1000');
+    await usuario.click(botonCategoria('Otro'));
+    await usuario.keyboard('{Enter}');
+    await waitFor(() => expect(filas()).toHaveLength(1));
+    expect((await leerGastos(db))[0]?.descripcion).toBeNull();
+  });
+
+  it('no acepta más de 60 caracteres', async () => {
+    await abrirPantalla();
+    expect(campoDescripcion()).toHaveAttribute('maxLength', '60');
+  });
+
+  it('"Corregir" permite cambiarla y borrarla', async () => {
+    const { usuario, db } = await abrirPantalla();
+    await usuario.type(campoMonto(), '8500');
+    await usuario.click(botonCategoria('Salud'));
+    await usuario.type(campoDescripcion(), 'Remedios{Enter}');
+    await waitFor(() => expect(filas()).toHaveLength(1));
+
+    await usuario.click(within(filas()[0]!).getByRole('button', { name: /^Corregir/ }));
+    let edicion = screen.getByRole('form', { name: 'Corregir gasto' });
+    let campo = within(edicion).getByLabelText(/^4\. Descripción/);
+    expect(campo).toHaveValue('Remedios');
+    await usuario.clear(campo);
+    await usuario.type(campo, 'Remedios y vitaminas');
+    await usuario.click(within(edicion).getByRole('button', { name: 'Guardar cambios' }));
+    await waitFor(() => expect(filas()[0]).toHaveTextContent('Remedios y vitaminas'));
+
+    await usuario.click(within(filas()[0]!).getByRole('button', { name: /^Corregir/ }));
+    edicion = screen.getByRole('form', { name: 'Corregir gasto' });
+    campo = within(edicion).getByLabelText(/^4\. Descripción/);
+    await usuario.clear(campo);
+    await usuario.click(within(edicion).getByRole('button', { name: 'Guardar cambios' }));
+    await waitFor(() => expect(screen.queryByRole('form', { name: 'Corregir gasto' })).not.toBeInTheDocument());
+    expect(filas()[0]).not.toHaveTextContent('Remedios');
+    expect((await leerGastos(db))[0]?.descripcion).toBeNull();
+  });
+});

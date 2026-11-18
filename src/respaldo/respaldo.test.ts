@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { crearDatosDeEjemplo } from '../datos/ejemplo';
 import { crearRespaldo, nombreArchivoRespaldo, textoRespaldo } from './exportar';
 import { leerRespaldo, MENSAJES_RESPALDO } from './importar';
+import { VERSION_ESQUEMA } from '../datos/db';
 
 const datos = crearDatosDeEjemplo('2026-11-17');
 const respaldo = crearRespaldo(datos, '2026-11-17T21:30:00');
@@ -31,7 +32,7 @@ describe('exportar', () => {
       'ajustes',
     ]);
     expect(respaldo.app).toBe('mis-gastos');
-    expect(respaldo.versionEsquema).toBe(1);
+    expect(respaldo.versionEsquema).toBe(VERSION_ESQUEMA);
     expect(respaldo.ajustes.ultimoRespaldo).toBe('2026-11-17T21:30:00');
   });
 });
@@ -46,7 +47,7 @@ describe('importar', () => {
     expect(leido.datos.gastosRecurrentes).toEqual(datos.gastosRecurrentes);
     expect(leido.datos.pagosRecurrentes).toEqual(datos.pagosRecurrentes);
     expect(leido.datos.gastos).toEqual(datos.gastos);
-    expect(leido.datos.ajustes).toEqual({ versionEsquema: 1, ultimoRespaldo: '2026-11-17T21:30:00' });
+    expect(leido.datos.ajustes).toEqual({ versionEsquema: VERSION_ESQUEMA, ultimoRespaldo: '2026-11-17T21:30:00' });
   });
 
   it('un respaldo sin gastos también sirve', () => {
@@ -91,8 +92,36 @@ describe('importar', () => {
   });
 
   it('un respaldo de una versión más nueva se rechaza con su propio mensaje', () => {
-    expect(leerRespaldo(alterado((r) => (r.versionEsquema = 2)))).toEqual({ ok: false, motivo: 'versionNueva' });
+    expect(leerRespaldo(alterado((r) => (r.versionEsquema = VERSION_ESQUEMA + 1)))).toEqual({ ok: false, motivo: 'versionNueva' });
     expect(MENSAJES_RESPALDO.versionNueva).toBe('Este respaldo es de una versión más nueva de Mis gastos.');
     expect(MENSAJES_RESPALDO.noEsRespaldo).toBe('Este archivo no es un respaldo de Mis gastos.');
+  });
+});
+
+describe('descripción de los gastos (fase 7)', () => {
+  it('se guarda y se lee en el respaldo', () => {
+    const conDescripcion = datos.gastos.find((g) => g.descripcion !== null);
+    expect(conDescripcion).toBeDefined();
+    const leido = leerRespaldo(texto);
+    expect(leido.ok && leido.datos.gastos.find((g) => g.id === conDescripcion?.id)?.descripcion).toBe(conDescripcion?.descripcion);
+  });
+
+  it('un respaldo de la versión 1, sin descripciones, se lee con descripción vacía', () => {
+    const v1 = alterado((r) => {
+      r.versionEsquema = 1;
+      for (const g of r.gastos as Array<Record<string, unknown>>) delete g.descripcion;
+    });
+    const leido = leerRespaldo(v1);
+    expect(leido.ok).toBe(true);
+    if (!leido.ok) return;
+    expect(leido.datos.gastos).toHaveLength(datos.gastos.length);
+    expect(leido.datos.gastos.every((g) => g.descripcion === null)).toBe(true);
+  });
+
+  it('rechaza una descripción de más de 60 caracteres', () => {
+    const largo = alterado((r) => {
+      (r.gastos as Array<Record<string, unknown>>)[0]!.descripcion = 'x'.repeat(61);
+    });
+    expect(leerRespaldo(largo)).toEqual({ ok: false, motivo: 'noEsRespaldo' });
   });
 });
