@@ -2,7 +2,7 @@
  * Criterios de aceptación REC-A1 a REC-A11 (brief, fase 1).
  */
 import { describe, expect, it } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '../App';
 import { abrirBase, leerTodo, reemplazarTodo, type BaseDeDatos } from '../datos/db';
@@ -354,5 +354,118 @@ describe('REC-10: meses pasados', () => {
       const { pagosRecurrentes } = await leerTodo(db);
       expect(pagosRecurrentes.find((p) => p.id === 'Gas-2026-10')?.fechaPago).toBe('2026-10-31');
     });
+  });
+});
+
+describe('F7-A5: comprobante', () => {
+  const selector = () => screen.getByTestId('selector-comprobante') as HTMLInputElement;
+  const archivo = (nombre = 'boleta luz.png', tipo = 'image/png') => new File([new Uint8Array([1, 2, 3, 4])], nombre, { type: tipo });
+
+  async function subir(usuario: ReturnType<typeof userEvent.setup>, nombre: string, file: File) {
+    await usuario.click(screen.getByRole('button', { name: `Agregar comprobante de ${nombre}` }));
+    fireEvent.change(selector(), { target: { files: [file] } });
+    return screen.findByRole('button', { name: `Comprobante de ${nombre}, ver` });
+  }
+
+  it('sin comprobante, cada fila muestra "Agregar comprobante"', async () => {
+    await abrirRecurrentes();
+    await waitFor(() => expect(nombresDeFilas()).toHaveLength(6));
+    expect(screen.getAllByRole('button', { name: /^Agregar comprobante de / })).toHaveLength(6);
+  });
+
+  it('al subirlo, la fila muestra "Comprobante" con check y se guarda solo en ese mes', async () => {
+    const { usuario, db } = await abrirRecurrentes();
+    await waitFor(() => expect(nombresDeFilas()).toHaveLength(6));
+    const boton = await subir(usuario, 'Luz', archivo());
+    expect(boton).toHaveTextContent('Comprobante');
+    expect(boton.querySelector('svg')).not.toBeNull(); // el check
+    await waitFor(() => expect(boton).toHaveFocus());
+
+    const guardados = (await leerTodo(db)).comprobantes;
+    expect(guardados).toHaveLength(1);
+    expect(guardados[0]).toMatchObject({ nombre: 'boleta luz.png', tipo: 'image/png', tamano: 4 });
+    expect(screen.getAllByRole('button', { name: /^Agregar comprobante de / })).toHaveLength(5);
+  });
+
+  it('al hacer clic se abre la ventana con la vista previa, y Cerrar devuelve el foco', async () => {
+    const { usuario } = await abrirRecurrentes();
+    await waitFor(() => expect(nombresDeFilas()).toHaveLength(6));
+    const boton = await subir(usuario, 'Luz', archivo('boleta.pdf', 'application/pdf'));
+    await usuario.click(boton);
+
+    const ventana = screen.getByRole('dialog', { name: 'Comprobante de Luz, noviembre' });
+    expect(ventana).toHaveTextContent('boleta.pdf');
+    expect(within(ventana).getByRole('button', { name: 'Cerrar' })).toHaveFocus();
+    expect(within(ventana).getByRole('button', { name: 'Cambiar' })).toBeInTheDocument();
+
+    await usuario.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Comprobante de Luz, ver' })).toHaveFocus());
+  });
+
+  it('otro tipo de archivo se ofrece para descargar', async () => {
+    const { usuario } = await abrirRecurrentes();
+    await waitFor(() => expect(nombresDeFilas()).toHaveLength(6));
+    await usuario.click(await subir(usuario, 'Agua', archivo('detalle.xls', 'application/vnd.ms-excel')));
+    expect(screen.getByRole('dialog')).toHaveTextContent('Este tipo de archivo no se puede ver aquí.');
+  });
+
+  it('quitar pide confirmación y se puede deshacer', async () => {
+    const { usuario, db } = await abrirRecurrentes();
+    await waitFor(() => expect(nombresDeFilas()).toHaveLength(6));
+    await usuario.click(await subir(usuario, 'Luz', archivo()));
+    await usuario.click(screen.getByRole('button', { name: 'Quitar comprobante' }));
+
+    const confirmacion = screen.getByRole('alertdialog', { name: '¿Quitar el comprobante de Luz de noviembre?' });
+    await usuario.click(within(confirmacion).getByRole('button', { name: 'Quitar comprobante' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Se quitó el comprobante de Luz.');
+    expect(screen.getByRole('button', { name: 'Agregar comprobante de Luz' })).toBeInTheDocument();
+    expect((await leerTodo(db)).comprobantes).toEqual([]);
+
+    await usuario.click(screen.getByRole('button', { name: 'Deshacer' }));
+    expect(await screen.findByRole('button', { name: 'Comprobante de Luz, ver' })).toBeInTheDocument();
+    expect((await leerTodo(db)).comprobantes).toHaveLength(1);
+  });
+
+  it('cancelar la confirmación vuelve a la ventana sin quitar nada', async () => {
+    const { usuario, db } = await abrirRecurrentes();
+    await waitFor(() => expect(nombresDeFilas()).toHaveLength(6));
+    await usuario.click(await subir(usuario, 'Luz', archivo()));
+    await usuario.click(screen.getByRole('button', { name: 'Quitar comprobante' }));
+    await usuario.click(screen.getByRole('button', { name: 'Cancelar' }));
+    expect(screen.getByRole('dialog', { name: 'Comprobante de Luz, noviembre' })).toBeInTheDocument();
+    expect((await leerTodo(db)).comprobantes).toHaveLength(1);
+  });
+
+  it('cambiarlo reemplaza el archivo y se puede deshacer', async () => {
+    const { usuario, db } = await abrirRecurrentes();
+    await waitFor(() => expect(nombresDeFilas()).toHaveLength(6));
+    await usuario.click(await subir(usuario, 'Luz', archivo('primera.png')));
+    await usuario.click(screen.getByRole('button', { name: 'Cambiar' }));
+    fireEvent.change(selector(), { target: { files: [archivo('segunda.png')] } });
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Se cambió el comprobante de Luz.');
+    expect((await leerTodo(db)).comprobantes[0]?.nombre).toBe('segunda.png');
+    await usuario.click(screen.getByRole('button', { name: 'Deshacer' }));
+    await waitFor(async () => expect((await leerTodo(db)).comprobantes[0]?.nombre).toBe('primera.png'));
+  });
+
+  it('un archivo de más de 10 MB no se guarda y se avisa junto a la fila', async () => {
+    const { usuario, db } = await abrirRecurrentes();
+    await waitFor(() => expect(nombresDeFilas()).toHaveLength(6));
+    const grande = archivo('enorme.pdf', 'application/pdf');
+    Object.defineProperty(grande, 'size', { value: 11 * 1024 * 1024 });
+    await usuario.click(screen.getByRole('button', { name: 'Agregar comprobante de Gas' }));
+    fireEvent.change(selector(), { target: { files: [grande] } });
+    expect(await screen.findByText('Ese archivo pesa más de 10 MB. Elige uno más liviano.')).toBeInTheDocument();
+    expect((await leerTodo(db)).comprobantes).toEqual([]);
+  });
+
+  it('el comprobante es del mes: en octubre la fila de Luz no lo tiene', async () => {
+    const { usuario } = await abrirRecurrentes();
+    await waitFor(() => expect(nombresDeFilas()).toHaveLength(6));
+    await subir(usuario, 'Luz', archivo());
+    await usuario.click(screen.getByRole('button', { name: /mes anterior/i }));
+    expect(await screen.findByRole('button', { name: 'Agregar comprobante de Luz' })).toBeInTheDocument();
   });
 });

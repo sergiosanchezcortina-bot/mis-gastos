@@ -1,10 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { AvisoDeshacer } from '../componentes/AvisoDeshacer';
 import { BarraAvance } from '../componentes/BarraAvance';
 import { DialogoConfirmacion } from '../componentes/DialogoConfirmacion';
 import { EncabezadoPantalla } from '../componentes/EncabezadoPantalla';
 import { Icono } from '../componentes/Icono';
 import { Tarjeta } from '../componentes/Tarjeta';
+import { VisorComprobante } from '../componentes/VisorComprobante';
+import { validarArchivo } from '../dominio/comprobantes';
+import { nombreMes } from '../dominio/fechas';
+import type { Comprobante } from '../dominio/tipos';
+import { comprobanteDesdeArchivo, guardarComprobante, leerComprobantes, quitarComprobante } from '../datos/comprobantes';
 import {
   avancePagados,
   compararPorVencimiento,
@@ -21,7 +26,6 @@ import {
   guardarPago,
   leerMesRecurrentes,
   quitarRecurrente,
-  type DeshacerQuitar,
   type FilaRecurrente as Fila,
 } from '../datos/recurrentes';
 import { useMes } from '../estado/MesContext';
@@ -29,7 +33,7 @@ import { FilaRecurrente } from './FilaRecurrente';
 import { FormularioRecurrente, type DatosRecurrente } from './FormularioRecurrente';
 
 type Formulario = { modo: 'agregar' } | { modo: 'editar'; gastoId: string } | null;
-type Aviso = { texto: string; deshacer: DeshacerQuitar } | null;
+type Aviso = { texto: string; deshacer: () => Promise<void> } | null;
 
 const ordenar = (filas: Fila[]) => [...filas].sort((a, b) => compararPorVencimiento(a.gasto, b.gasto));
 
@@ -41,9 +45,18 @@ export function GastosRecurrentes() {
   const [porQuitar, setPorQuitar] = useState<Fila | null>(null);
   const [aviso, setAviso] = useState<Aviso>(null);
   const botonAgregar = useRef<HTMLButtonElement>(null);
+  // Comprobantes (REC-12).
+  const [comprobantes, setComprobantes] = useState<Map<string, Comprobante>>(new Map());
+  const [viendo, setViendo] = useState<Fila | null>(null);
+  const [porQuitarComprobante, setPorQuitarComprobante] = useState<Fila | null>(null);
+  const [errorComprobante, setErrorComprobante] = useState<{ pagoId: string; texto: string } | null>(null);
+  const selectorArchivo = useRef<HTMLInputElement>(null);
+  const filaDelArchivo = useRef<Fila | null>(null);
 
   const cargar = async () => {
-    setFilas(await leerMesRecurrentes(db, mesSeleccionado, mesActual));
+    const leidas = await leerMesRecurrentes(db, mesSeleccionado, mesActual);
+    setComprobantes(await leerComprobantes(db, leidas.map((f) => f.pago.id)));
+    setFilas(leidas);
   };
 
   useEffect(() => {
@@ -51,8 +64,13 @@ export function GastosRecurrentes() {
     setFormulario(null);
     setAviso(null);
     setEditandoLista(false);
-    void leerMesRecurrentes(db, mesSeleccionado, mesActual).then((leidas) => {
-      if (vigente) setFilas(leidas);
+    setViendo(null);
+    setErrorComprobante(null);
+    void leerMesRecurrentes(db, mesSeleccionado, mesActual).then(async (leidas) => {
+      const deEsteMes = await leerComprobantes(db, leidas.map((f) => f.pago.id));
+      if (!vigente) return;
+      setComprobantes(deEsteMes);
+      setFilas(leidas);
     });
     return () => {
       vigente = false;
@@ -93,17 +111,100 @@ export function GastosRecurrentes() {
     const leidas = await leerMesRecurrentes(db, mesSeleccionado, mesActual);
     // La fila desaparece y el aviso aparece en el mismo momento.
     setFilas(leidas);
-    setAviso({ texto: `Se quitó ${fila.gasto.nombre}.`, deshacer });
+    setAviso({
+      texto: `Se quitó ${fila.gasto.nombre}.`,
+      deshacer: async () => {
+        await deshacerQuitar(db, deshacer);
+        await cargar();
+        await actualizarLimites();
+      },
+    });
     await actualizarLimites();
   };
 
   const deshacerUltimo = async () => {
     if (!aviso) return;
-    await deshacerQuitar(db, aviso.deshacer);
     setAviso(null);
-    await cargar();
-    await actualizarLimites();
+    await aviso.deshacer();
   };
+
+  // ---------- Comprobante (REC-12) ----------
+
+  const ponerComprobante = (pagoId: string, comprobante: Comprobante | undefined) =>
+    setComprobantes((actuales) => {
+      const nuevos = new Map(actuales);
+      if (comprobante) nuevos.set(pagoId, comprobante);
+      else nuevos.delete(pagoId);
+      return nuevos;
+    });
+
+  const enfocarBoton = (fila: Fila) =>
+    setTimeout(() => document.querySelector<HTMLElement>(`[data-comprobante="${fila.pago.id}"]`)?.focus());
+
+  /** Abre el selector de archivos del Mac para esa fila. */
+  const elegirArchivo = (fila: Fila) => {
+    setAviso(null);
+    setErrorComprobante(null);
+    filaDelArchivo.current = fila;
+    if (selectorArchivo.current) {
+      selectorArchivo.current.value = '';
+      selectorArchivo.current.click();
+    }
+  };
+
+  const alElegirArchivo = async (evento: ChangeEvent<HTMLInputElement>) => {
+    const archivo = evento.target.files?.[0];
+    const fila = filaDelArchivo.current;
+    if (!archivo || !fila) return;
+    const error = validarArchivo(archivo.size);
+    if (error) {
+      setViendo(null);
+      setErrorComprobante({ pagoId: fila.pago.id, texto: error });
+      return;
+    }
+    const anterior = comprobantes.get(fila.pago.id);
+    const nuevo = await comprobanteDesdeArchivo(fila.pago.id, archivo, new Date().toISOString());
+    await guardarComprobante(db, nuevo);
+    ponerComprobante(fila.pago.id, nuevo);
+    // El botón cambia a "Comprobante" con check; el foco queda en él.
+    enfocarBoton(fila);
+    if (anterior) {
+      // "Cambiar" reemplaza el archivo; el anterior se puede recuperar.
+      setViendo(null);
+      setAviso({
+        texto: `Se cambió el comprobante de ${fila.gasto.nombre}.`,
+        deshacer: async () => {
+          await guardarComprobante(db, anterior);
+          ponerComprobante(fila.pago.id, anterior);
+        },
+      });
+    }
+  };
+
+  const confirmarQuitarComprobante = async (fila: Fila) => {
+    const anterior = comprobantes.get(fila.pago.id);
+    setPorQuitarComprobante(null);
+    setViendo(null);
+    if (!anterior) return;
+    await quitarComprobante(db, fila.pago.id);
+    ponerComprobante(fila.pago.id, undefined);
+    setAviso({
+      texto: `Se quitó el comprobante de ${fila.gasto.nombre}.`,
+      deshacer: async () => {
+        await guardarComprobante(db, anterior);
+        ponerComprobante(fila.pago.id, anterior);
+      },
+    });
+  };
+
+  /** Al cerrar la ventana, el foco vuelve al botón de la fila. */
+  const cerrarVisor = (fila: Fila) => {
+    setViendo(null);
+    enfocarBoton(fila);
+  };
+
+  const tituloComprobante = (fila: Fila) => `Comprobante de ${fila.gasto.nombre}, ${nombreMes(fila.pago.mes)}`;
+  const comprobanteViendo = viendo && comprobantes.get(viendo.pago.id);
 
   const abrirFormulario = (nuevo: Formulario) => {
     setAviso(null);
@@ -157,10 +258,11 @@ export function GastosRecurrentes() {
       {avisoDeshacer}
 
       <section className="tabla" aria-label="Gastos recurrentes del mes">
-        <div className="tabla__contenido">
+        <div className="tabla__contenido tabla__contenido--recurrentes">
           <div className="tabla__encabezado" aria-hidden="true">
             <div className="tabla__col-pagado">Pagado</div>
             <div className="tabla__col-gasto">Gasto</div>
+            <div className="tabla__col-comprobante">Comprobante</div>
             <div className="tabla__col-monto">Monto</div>
           </div>
           {filas.map((fila) =>
@@ -186,6 +288,14 @@ export function GastosRecurrentes() {
                   setAviso(null);
                   setPorQuitar(fila);
                 }}
+                tieneComprobante={comprobantes.has(fila.pago.id)}
+                errorComprobante={errorComprobante?.pagoId === fila.pago.id ? errorComprobante.texto : null}
+                alAgregarComprobante={() => elegirArchivo(fila)}
+                alVerComprobante={() => {
+                  setAviso(null);
+                  setErrorComprobante(null);
+                  setViendo(fila);
+                }}
               />
             ),
           )}
@@ -207,6 +317,36 @@ export function GastosRecurrentes() {
             {editandoLista ? 'Listo' : 'Editar lista'}
           </button>
         </div>
+      )}
+
+      {/* Un solo selector de archivos para toda la tabla. Acepta cualquier tipo. */}
+      <input
+        ref={selectorArchivo}
+        type="file"
+        className="solo-lector"
+        tabIndex={-1}
+        aria-hidden="true"
+        data-testid="selector-comprobante"
+        onChange={(e) => void alElegirArchivo(e)}
+      />
+
+      {viendo && comprobanteViendo && !porQuitarComprobante && (
+        <VisorComprobante
+          titulo={tituloComprobante(viendo)}
+          comprobante={comprobanteViendo}
+          alCambiar={() => elegirArchivo(viendo)}
+          alQuitar={() => setPorQuitarComprobante(viendo)}
+          alCerrar={() => cerrarVisor(viendo)}
+        />
+      )}
+
+      {porQuitarComprobante && (
+        <DialogoConfirmacion
+          mensaje={`¿Quitar el comprobante de ${porQuitarComprobante.gasto.nombre} de ${nombreMes(porQuitarComprobante.pago.mes)}?`}
+          textoConfirmar="Quitar comprobante"
+          alConfirmar={() => void confirmarQuitarComprobante(porQuitarComprobante)}
+          alCancelar={() => setPorQuitarComprobante(null)}
+        />
       )}
 
       {porQuitar && (

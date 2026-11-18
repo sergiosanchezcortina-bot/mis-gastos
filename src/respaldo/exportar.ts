@@ -4,6 +4,7 @@
 import type { DatosCompletos } from '../dominio/tipos';
 import { VERSION_ESQUEMA } from '../datos/db';
 import { APP_RESPALDO, type ArchivoRespaldo } from './formato';
+import { aBase64 } from './base64';
 
 /** `exportadoEn` es fecha y hora local: "2026-11-17T21:30:00". */
 export function crearRespaldo(datos: DatosCompletos, exportadoEn: string): ArchivoRespaldo {
@@ -15,6 +16,7 @@ export function crearRespaldo(datos: DatosCompletos, exportadoEn: string): Archi
     gastosRecurrentes: datos.gastosRecurrentes,
     pagosRecurrentes: datos.pagosRecurrentes,
     gastos: datos.gastos,
+    comprobantes: datos.comprobantes.map(({ datos: archivo, ...resto }) => ({ ...resto, datosBase64: aBase64(archivo) })),
     ajustes: { ...datos.ajustes, ultimoRespaldo: exportadoEn },
   };
 }

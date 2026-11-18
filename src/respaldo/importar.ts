@@ -6,6 +6,7 @@ import type {
   Ajustes,
   Categoria,
   ClaveIcono,
+  Comprobante,
   DatosCompletos,
   Gasto,
   GastoRecurrente,
@@ -14,6 +15,7 @@ import type {
 import { esFechaValida, partesMes } from '../dominio/fechas';
 import { VERSION_ESQUEMA } from '../datos/db';
 import { APP_RESPALDO } from './formato';
+import { desdeBase64 } from './base64';
 import { LARGO_DESCRIPCION } from '../dominio/gastos';
 
 export const MENSAJES_RESPALDO = {
@@ -106,6 +108,24 @@ function esGasto(v: unknown): v is Gasto {
   );
 }
 
+/** Valida un comprobante del archivo y lo convierte. Devuelve null si algo no calza. */
+function leerComprobante(v: unknown): Comprobante | null {
+  if (
+    !esObjeto(v) ||
+    !esTextoNoVacio(v.pagoId) ||
+    !esTexto(v.nombre) ||
+    !esTexto(v.tipo) ||
+    !esEnteroNoNegativo(v.tamano) ||
+    !esTexto(v.agregadoEn) ||
+    !esTexto(v.datosBase64)
+  ) {
+    return null;
+  }
+  const datos = desdeBase64(v.datosBase64);
+  if (datos === null || datos.byteLength !== v.tamano) return null;
+  return { pagoId: v.pagoId, nombre: v.nombre, tipo: v.tipo, tamano: v.tamano, agregadoEn: v.agregadoEn, datos };
+}
+
 const sinRepetidos = (lista: Array<{ id: string }>) => new Set(lista.map((x) => x.id)).size === lista.length;
 
 /**
@@ -118,7 +138,7 @@ function migrar(respaldo: Objeto, version: number): Objeto {
   if (version < 2) {
     // Versión 2 (fase 7): descripción en los gastos no recurrentes.
     const gastos = Array.isArray(r.gastos) ? r.gastos.map((g: unknown) => (esObjeto(g) ? { ...g, descripcion: null } : g)) : r.gastos;
-    r = { ...r, gastos };
+    r = { ...r, gastos, comprobantes: [] };
   }
   return r;
 }
@@ -136,7 +156,7 @@ export function leerRespaldo(texto: string): ResultadoLectura {
   if ((crudo.versionEsquema as number) > VERSION_ESQUEMA) return { ok: false, motivo: 'versionNueva' };
 
   const r = migrar(crudo, crudo.versionEsquema as number);
-  const { categorias, gastosRecurrentes, pagosRecurrentes, gastos, ajustes, exportadoEn } = r;
+  const { categorias, gastosRecurrentes, pagosRecurrentes, gastos, ajustes, exportadoEn, comprobantes: comprobantesCrudos } = r;
 
   const valido =
     esFechaHora(exportadoEn) &&
@@ -149,25 +169,32 @@ export function leerRespaldo(texto: string): ResultadoLectura {
     pagosRecurrentes.every(esPagoRecurrente) &&
     Array.isArray(gastos) &&
     gastos.every(esGasto) &&
-    esObjeto(ajustes);
+    esObjeto(ajustes) &&
+    Array.isArray(comprobantesCrudos);
   if (!valido) return { ok: false, motivo: 'noEsRespaldo' };
+
+  const comprobantes = comprobantesCrudos.map(leerComprobante);
+  if (!comprobantes.every((c): c is Comprobante => c !== null)) return { ok: false, motivo: 'noEsRespaldo' };
 
   // Cada referencia debe apuntar a algo que existe en el mismo archivo.
   const idsCategorias = new Set(categorias.map((c) => c.id));
   const idsRecurrentes = new Set(gastosRecurrentes.map((g) => g.id));
+  const idsPagos = new Set(pagosRecurrentes.map((p) => p.id));
   const referenciasBien =
     sinRepetidos(categorias) &&
     sinRepetidos(gastosRecurrentes) &&
     sinRepetidos(pagosRecurrentes) &&
     sinRepetidos(gastos) &&
     gastos.every((g) => idsCategorias.has(g.categoriaId)) &&
-    pagosRecurrentes.every((p) => idsRecurrentes.has(p.gastoRecurrenteId));
+    pagosRecurrentes.every((p) => idsRecurrentes.has(p.gastoRecurrenteId)) &&
+    new Set(comprobantes.map((c) => c.pagoId)).size === comprobantes.length &&
+    comprobantes.every((c) => idsPagos.has(c.pagoId));
   if (!referenciasBien) return { ok: false, motivo: 'noEsRespaldo' };
 
   const ajustesNuevos: Ajustes = { versionEsquema: VERSION_ESQUEMA, ultimoRespaldo: exportadoEn };
   return {
     ok: true,
     exportadoEn,
-    datos: { categorias, gastosRecurrentes, pagosRecurrentes, gastos, ajustes: ajustesNuevos },
+    datos: { categorias, gastosRecurrentes, pagosRecurrentes, gastos, comprobantes, ajustes: ajustesNuevos },
   };
 }

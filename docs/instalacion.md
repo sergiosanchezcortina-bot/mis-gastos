@@ -57,6 +57,8 @@ Marca cada punto y avísale a Claude Code lo que no funcione.
 - [ ] **Doble clic.** Un doble clic en "Guardar gasto" guarda un solo gasto.
 - [ ] **El respaldo.** "Descargar respaldo" deja el archivo `mis-gastos-respaldo-AAAA-MM-DD.json` en Descargas.
 - [ ] **Restaurar.** "Restaurar desde un respaldo" abre el selector de archivos del Mac y restaura ese archivo.
+- [ ] **Comprobante (fase 7).** En Gastos recurrentes, "Agregar comprobante" abre el selector de archivos. Sube un pantallazo y un PDF: los dos tienen que verse en la ventana al hacer clic en "Comprobante". Si el PDF sale en blanco, avísale a Claude Code.
+- [ ] **Respaldo con comprobante.** Con un comprobante subido, "Descargar respaldo" y luego "Restaurar desde un respaldo" lo deja igual.
 - [ ] **Tamaños.** Con el zoom que él usa (Cmd + y Cmd −), nada se corta ni hay que mover la página hacia el lado.
 
 ## 6. Qué decirle a tu papá

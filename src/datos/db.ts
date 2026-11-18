@@ -6,6 +6,7 @@ import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 import type {
   Ajustes,
   Categoria,
+  Comprobante,
   DatosCompletos,
   Gasto,
   GastoRecurrente,
@@ -27,11 +28,12 @@ interface EsquemaMisGastos extends DBSchema {
   };
   gastos: { key: string; value: Gasto; indexes: { porFecha: string } };
   ajustes: { key: string; value: Ajustes };
+  comprobantes: { key: string; value: Comprobante };
 }
 
 export type BaseDeDatos = IDBPDatabase<EsquemaMisGastos>;
 
-const ALMACENES = ['categorias', 'gastosRecurrentes', 'pagosRecurrentes', 'gastos', 'ajustes'] as const;
+const ALMACENES = ['categorias', 'gastosRecurrentes', 'pagosRecurrentes', 'gastos', 'ajustes', 'comprobantes'] as const;
 
 /** Las ocho categorías con que parte la app (brief, AJU-1). */
 export function categoriasIniciales(): Categoria[] {
@@ -79,6 +81,10 @@ export function abrirBase(nombre: string = NOMBRE_BASE): Promise<BaseDeDatos> {
             cursor = await cursor.continue();
           }
         })();
+      }
+      if (versionAnterior < 2) {
+        // Versión 2 (fase 7): un comprobante por pago de gasto recurrente.
+        db.createObjectStore('comprobantes', { keyPath: 'pagoId' });
       }
       // Las migraciones de versiones futuras van aquí, una por versión.
     },
@@ -134,12 +140,13 @@ export async function primerMesConDatos(db: BaseDeDatos): Promise<string | null>
 
 export async function leerTodo(db: BaseDeDatos): Promise<DatosCompletos> {
   const tx = db.transaction([...ALMACENES], 'readonly');
-  const [categorias, gastosRecurrentes, pagosRecurrentes, gastos, ajustes] = await Promise.all([
+  const [categorias, gastosRecurrentes, pagosRecurrentes, gastos, ajustes, comprobantes] = await Promise.all([
     tx.objectStore('categorias').getAll(),
     tx.objectStore('gastosRecurrentes').getAll(),
     tx.objectStore('pagosRecurrentes').getAll(),
     tx.objectStore('gastos').getAll(),
     tx.objectStore('ajustes').get(CLAVE_AJUSTES),
+    tx.objectStore('comprobantes').getAll(),
   ]);
   await tx.done;
   return {
@@ -147,6 +154,7 @@ export async function leerTodo(db: BaseDeDatos): Promise<DatosCompletos> {
     gastosRecurrentes,
     pagosRecurrentes,
     gastos,
+    comprobantes,
     ajustes: ajustes ?? ajustesIniciales(),
   };
 }
@@ -174,6 +182,7 @@ export async function reemplazarTodo(db: BaseDeDatos, datos: DatosCompletos): Pr
     for (const g of datos.gastosRecurrentes) encolar(() => tx.objectStore('gastosRecurrentes').put(g));
     for (const p of datos.pagosRecurrentes) encolar(() => tx.objectStore('pagosRecurrentes').put(p));
     for (const g of datos.gastos) encolar(() => tx.objectStore('gastos').put(g));
+    for (const c of datos.comprobantes) encolar(() => tx.objectStore('comprobantes').put(c));
     encolar(() => tx.objectStore('ajustes').put(datos.ajustes, CLAVE_AJUSTES));
   } catch (error) {
     await tx.done.catch(() => undefined);
@@ -189,6 +198,7 @@ export async function vaciarTodo(db: BaseDeDatos): Promise<void> {
     gastosRecurrentes: [],
     pagosRecurrentes: [],
     gastos: [],
+    comprobantes: [],
     ajustes: ajustesIniciales(),
   });
 }

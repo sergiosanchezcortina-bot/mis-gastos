@@ -145,6 +145,7 @@ export function crearDatosDeEjemplo(hoy: string = fechaLocal()): DatosCompletos 
     gastosRecurrentes,
     pagosRecurrentes,
     gastos,
+    comprobantes: [],
     ajustes: { versionEsquema: VERSION_ESQUEMA, ultimoRespaldo: null },
   };
 }

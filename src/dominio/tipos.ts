@@ -58,6 +58,16 @@ export type Gasto = {
   actualizadoEn: string;
 };
 
+/** Comprobante de un gasto recurrente en un mes (fase 7). Uno por pago, como máximo. */
+export type Comprobante = {
+  pagoId: string;
+  nombre: string; // nombre del archivo
+  tipo: string; // tipo MIME; puede venir vacío
+  tamano: number; // bytes
+  datos: ArrayBuffer;
+  agregadoEn: string; // fecha y hora ISO
+};
+
 export type Ajustes = {
   versionEsquema: number;
   ultimoRespaldo: string | null; // fecha y hora ISO
@@ -69,5 +79,6 @@ export type DatosCompletos = {
   gastosRecurrentes: GastoRecurrente[];
   pagosRecurrentes: PagoRecurrente[];
   gastos: Gasto[];
+  comprobantes: Comprobante[];
   ajustes: Ajustes;
 };

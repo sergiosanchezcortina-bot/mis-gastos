@@ -3,6 +3,8 @@ import { crearDatosDeEjemplo } from '../datos/ejemplo';
 import { crearRespaldo, nombreArchivoRespaldo, textoRespaldo } from './exportar';
 import { leerRespaldo, MENSAJES_RESPALDO } from './importar';
 import { VERSION_ESQUEMA } from '../datos/db';
+import type { Comprobante } from '../dominio/tipos';
+import { aBase64, desdeBase64 } from './base64';
 
 const datos = crearDatosDeEjemplo('2026-11-17');
 const respaldo = crearRespaldo(datos, '2026-11-17T21:30:00');
@@ -29,6 +31,7 @@ describe('exportar', () => {
       'gastosRecurrentes',
       'pagosRecurrentes',
       'gastos',
+      'comprobantes',
       'ajustes',
     ]);
     expect(respaldo.app).toBe('mis-gastos');
@@ -123,5 +126,55 @@ describe('descripción de los gastos (fase 7)', () => {
       (r.gastos as Array<Record<string, unknown>>)[0]!.descripcion = 'x'.repeat(61);
     });
     expect(leerRespaldo(largo)).toEqual({ ok: false, motivo: 'noEsRespaldo' });
+  });
+});
+
+describe('comprobantes en el respaldo (F7-A6)', () => {
+  const bytes = new Uint8Array(70000).map((_, i) => (i * 7) % 256);
+  const pago = datos.pagosRecurrentes[0]!;
+  const comprobante: Comprobante = {
+    pagoId: pago.id,
+    nombre: 'boleta luz.pdf',
+    tipo: 'application/pdf',
+    tamano: bytes.length,
+    datos: bytes.buffer,
+    agregadoEn: '2026-11-10T12:00:00.000Z',
+  };
+  const conComprobante = textoRespaldo(crearRespaldo({ ...datos, comprobantes: [comprobante] }, '2026-11-17T21:30:00'));
+
+  it('base64 ida y vuelta deja los mismos bytes', () => {
+    const vuelta = desdeBase64(aBase64(bytes.buffer));
+    expect(vuelta && new Uint8Array(vuelta)).toEqual(bytes);
+    expect(desdeBase64('esto no es base64!!')).toBeNull();
+  });
+
+  it('se guardan y se leen con el mismo archivo', () => {
+    const leido = leerRespaldo(conComprobante);
+    expect(leido.ok).toBe(true);
+    if (!leido.ok) return;
+    expect(leido.datos.comprobantes).toHaveLength(1);
+    const [c] = leido.datos.comprobantes;
+    expect(c).toMatchObject({ pagoId: pago.id, nombre: 'boleta luz.pdf', tipo: 'application/pdf', tamano: bytes.length });
+    expect(new Uint8Array(c!.datos)).toEqual(bytes);
+  });
+
+  it('un respaldo de la versión 1 se lee sin comprobantes', () => {
+    const v1 = alterado((r) => {
+      r.versionEsquema = 1;
+      delete r.comprobantes;
+    });
+    const leido = leerRespaldo(v1);
+    expect(leido.ok && leido.datos.comprobantes).toEqual([]);
+  });
+
+  it('se rechaza un comprobante de un pago que no existe, o con el tamaño cambiado', () => {
+    const cambiar = (cambio: (c: Record<string, unknown>) => void) => {
+      const copia = JSON.parse(conComprobante) as { comprobantes: Array<Record<string, unknown>> };
+      cambio(copia.comprobantes[0]!);
+      return JSON.stringify(copia);
+    };
+    expect(leerRespaldo(cambiar((c) => (c.pagoId = 'no-existe'))).ok).toBe(false);
+    expect(leerRespaldo(cambiar((c) => (c.tamano = 5))).ok).toBe(false);
+    expect(leerRespaldo(cambiar((c) => (c.datosBase64 = '%%%'))).ok).toBe(false);
   });
 });

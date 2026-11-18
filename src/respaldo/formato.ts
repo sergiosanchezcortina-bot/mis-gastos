@@ -1,7 +1,7 @@
 /**
  * Formato del archivo de respaldo. Ver docs/arquitectura.md, sección 2.3.
  */
-import type { Ajustes, Categoria, Gasto, GastoRecurrente, PagoRecurrente } from '../dominio/tipos';
+import type { Ajustes, Categoria, Comprobante, Gasto, GastoRecurrente, PagoRecurrente } from '../dominio/tipos';
 
 export const APP_RESPALDO = 'mis-gastos';
 
@@ -13,5 +13,9 @@ export type ArchivoRespaldo = {
   gastosRecurrentes: GastoRecurrente[];
   pagosRecurrentes: PagoRecurrente[];
   gastos: Gasto[];
+  /** Desde la versión 2. El archivo va en base64 dentro del JSON. */
+  comprobantes: ComprobanteRespaldo[];
   ajustes: Ajustes;
 };
+
+export type ComprobanteRespaldo = Omit<Comprobante, 'datos'> & { datosBase64: string };

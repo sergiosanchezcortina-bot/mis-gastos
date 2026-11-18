@@ -81,6 +81,16 @@ type Gasto = {
   actualizadoEn: string;
 };
 
+// Comprobante de un pago recurrente (esquema 2). Uno por pago como máximo.
+type Comprobante = {
+  pagoId: string;                  // clave: id del PagoRecurrente
+  nombre: string;                  // nombre del archivo
+  tipo: string;                    // tipo MIME; puede venir vacío
+  tamano: number;                  // bytes, hasta 10 MB
+  datos: ArrayBuffer;              // el archivo, guardado en IndexedDB
+  agregadoEn: string;              // fecha y hora ISO
+};
+
 type Ajustes = {
   versionEsquema: number;
   ultimoRespaldo: string | null;   // fecha y hora ISO
@@ -130,15 +140,19 @@ Archivo `mis-gastos-respaldo-AAAA-MM-DD.json`:
 ```json
 {
   "app": "mis-gastos",
-  "versionEsquema": 1,
+  "versionEsquema": 2,
   "exportadoEn": "2026-11-17T21:30:00",
   "categorias": [],
   "gastosRecurrentes": [],
   "pagosRecurrentes": [],
   "gastos": [],
+  "comprobantes": [],
   "ajustes": {}
 }
 ```
+
+- Desde la versión 2, cada comprobante va con su archivo en base64 (`datosBase64` en lugar de `datos`). Por eso el respaldo puede pesar varios MB.
+- Un respaldo de la versión 1 se lee con `descripcion: null` en cada gasto y sin comprobantes.
 
 - Restaurar valida `app` y `versionEsquema` antes de tocar nada.
 - Restaurar reemplaza todos los datos en una sola transacción. Si falla, no cambia nada.

@@ -1,4 +1,5 @@
 import { CampoMonto } from '../componentes/CampoMonto';
+import { MensajeError } from '../componentes/MensajeError';
 import { Icono } from '../componentes/Icono';
 import { esAlerta, estadoFila, textoEstado } from '../dominio/recurrentes';
 import type { FilaRecurrente as Fila } from '../datos/recurrentes';
@@ -11,9 +12,26 @@ type Props = {
   alCambiarMonto: (monto: number | null) => void;
   alCambiarNombreODia: () => void;
   alQuitar: () => void;
+  /** Fase 7 (REC-12). */
+  tieneComprobante: boolean;
+  errorComprobante: string | null;
+  alAgregarComprobante: () => void;
+  alVerComprobante: () => void;
 };
 
-export function FilaRecurrente({ fila, hoy, editandoLista, alMarcar, alCambiarMonto, alCambiarNombreODia, alQuitar }: Props) {
+export function FilaRecurrente({
+  fila,
+  hoy,
+  editandoLista,
+  alMarcar,
+  alCambiarMonto,
+  alCambiarNombreODia,
+  alQuitar,
+  tieneComprobante,
+  errorComprobante,
+  alAgregarComprobante,
+  alVerComprobante,
+}: Props) {
   const { gasto, pago } = fila;
   const estado = estadoFila(pago, gasto.diaVencimiento, hoy);
   const alerta = esAlerta(estado);
@@ -63,6 +81,32 @@ export function FilaRecurrente({ fila, hoy, editandoLista, alMarcar, alCambiarMo
             </button>
           </div>
         )}
+      </div>
+      <div className="tabla__col-comprobante">
+        {tieneComprobante ? (
+          <button
+            type="button"
+            className="boton-comprobante boton-comprobante--listo"
+            data-comprobante={pago.id}
+            aria-label={`Comprobante de ${gasto.nombre}, ver`}
+            onClick={alVerComprobante}
+          >
+            <Icono nombre="check" />
+            Comprobante
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="boton-comprobante"
+            data-comprobante={pago.id}
+            aria-label={`Agregar comprobante de ${gasto.nombre}`}
+            onClick={alAgregarComprobante}
+          >
+            <Icono nombre="clip" />
+            Agregar comprobante
+          </button>
+        )}
+        {errorComprobante && <MensajeError id={`error-comprobante-${pago.id}`} texto={errorComprobante} />}
       </div>
       <div className="tabla__col-monto">
         <CampoMonto valor={pago.monto} alCambiar={alCambiarMonto} aria-label={`Monto de ${gasto.nombre}`} />

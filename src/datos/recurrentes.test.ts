@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { abrirBase, leerTodo } from './db';
+import { guardarComprobante, leerComprobantes, quitarComprobante } from './comprobantes';
 import {
   agregarRecurrente,
   deshacerQuitar,
@@ -82,6 +83,45 @@ describe('datos de gastos recurrentes', () => {
     await quitarRecurrente(db, gasto.id, '2026-11');
     expect(await leerMesRecurrentes(db, '2026-11', '2026-12')).toHaveLength(1);
     expect(await leerMesRecurrentes(db, '2026-12', '2026-12')).toEqual([]);
+    db.close();
+  });
+});
+
+describe('comprobantes (REC-12)', () => {
+  const comprobante = (pagoId: string) => ({
+    pagoId,
+    nombre: 'boleta.png',
+    tipo: 'image/png',
+    tamano: 3,
+    datos: new Uint8Array([1, 2, 3]).buffer,
+    agregadoEn: '2026-11-10T12:00:00.000Z',
+  });
+
+  it('se guarda uno por pago, se reemplaza y se quita', async () => {
+    const db = await abrirBase(nombreNuevo());
+    const { pago } = await agregarRecurrente(db, { nombre: 'Luz', diaVencimiento: 15, monto: 1 }, '2026-11');
+    await guardarComprobante(db, comprobante(pago.id));
+    await guardarComprobante(db, { ...comprobante(pago.id), nombre: 'otra.png' });
+    const leidos = await leerComprobantes(db, [pago.id, 'otro-pago']);
+    expect([...leidos.keys()]).toEqual([pago.id]);
+    expect(leidos.get(pago.id)?.nombre).toBe('otra.png');
+    expect(new Uint8Array(leidos.get(pago.id)!.datos)).toEqual(new Uint8Array([1, 2, 3]));
+
+    await quitarComprobante(db, pago.id);
+    expect((await leerComprobantes(db, [pago.id])).size).toBe(0);
+    db.close();
+  });
+
+  it('quitar el gasto recurrente se lleva el comprobante de la fila borrada, y deshacer lo devuelve', async () => {
+    const db = await abrirBase(nombreNuevo());
+    const { gasto, pago } = await agregarRecurrente(db, { nombre: 'Gas', diaVencimiento: 25, monto: 1 }, '2026-11');
+    await guardarComprobante(db, comprobante(pago.id));
+
+    const deshacer = await quitarRecurrente(db, gasto.id, '2026-11');
+    expect((await leerTodo(db)).comprobantes).toEqual([]);
+
+    await deshacerQuitar(db, deshacer);
+    expect((await leerTodo(db)).comprobantes.map((c) => c.pagoId)).toEqual([pago.id]);
     db.close();
   });
 });

@@ -407,6 +407,11 @@ button:disabled {
   min-width: 560px;
 }
 
+/* Con la columna Comprobante (fase 7), el nombre del gasto conserva al menos 160 px. */
+.tabla__contenido--recurrentes {
+  min-width: 780px;
+}
+
 .tabla__encabezado,
 .fila-recurrente {
   display: flex;
@@ -441,7 +446,7 @@ button:disabled {
 
 .tabla__col-gasto {
   flex-grow: 1;
-  min-width: 0;
+  min-width: 160px;
 }
 
 .tabla__col-monto {
@@ -1160,3 +1165,98 @@ button:disabled {
 .tramo--familia { background: var(--color-tramo-familia); }
 .tramo--ropa { background: var(--color-tramo-ropa); }
 .tramo--otro { background: var(--color-tramo-otro); }
+
+/* ---------- Comprobante de un gasto recurrente (fase 7, REC-12) ---------- */
+
+.tabla__col-comprobante {
+  width: 210px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--espacio-1);
+}
+
+.boton-comprobante {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  min-height: var(--alto-minimo-clic);
+  padding: 0 var(--espacio-3);
+  border: 1px dashed var(--color-borde-control);
+  border-radius: var(--radio-control);
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font: inherit;
+  font-weight: var(--peso-fuerte);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.boton-comprobante:hover {
+  background: var(--color-fondo-suave);
+}
+
+/* Con comprobante: fondo de acento, borde lleno y check. No depende solo del color. */
+.boton-comprobante--listo {
+  border-style: solid;
+  background: var(--color-acento);
+}
+
+.boton-comprobante--listo:hover {
+  background: var(--color-acento);
+  text-decoration: underline;
+}
+
+.dialogo--visor {
+  max-width: 900px;
+  height: 100%;
+  max-height: 860px;
+  gap: var(--espacio-4);
+}
+
+.visor__encabezado {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--espacio-4);
+}
+
+.visor__contenido {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-control);
+  background: var(--color-fondo-suave);
+  overflow: auto;
+}
+
+.visor__imagen {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.visor__pdf {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.visor__otro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espacio-4);
+  padding: var(--espacio-8);
+  text-align: center;
+}
+
+a.boton-secundario {
+  text-decoration: none;
+  color: var(--color-texto);
+  border: 1px solid var(--color-borde-control);
+}

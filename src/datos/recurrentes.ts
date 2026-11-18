@@ -1,7 +1,7 @@
 /**
  * Lectura y escritura de gastos recurrentes. Las reglas viven en dominio/recurrentes.ts.
  */
-import type { GastoRecurrente, PagoRecurrente } from '../dominio/tipos';
+import type { Comprobante, GastoRecurrente, PagoRecurrente } from '../dominio/tipos';
 import { compararPorVencimiento, filasQueFaltan, planQuitar } from '../dominio/recurrentes';
 import type { BaseDeDatos } from './db';
 
@@ -80,25 +80,39 @@ export async function editarRecurrente(
 }
 
 /** Lo necesario para deshacer un "Quitar". */
-export type DeshacerQuitar = { gastoAnterior: GastoRecurrente; pagosBorrados: PagoRecurrente[] };
+export type DeshacerQuitar = {
+  gastoAnterior: GastoRecurrente;
+  pagosBorrados: PagoRecurrente[];
+  comprobantesBorrados: Comprobante[];
+};
 
 /** Quita el gasto desde `mes` (REC-9). Devuelve lo necesario para deshacerlo. */
 export async function quitarRecurrente(db: BaseDeDatos, gastoId: string, mes: string): Promise<DeshacerQuitar> {
-  const tx = db.transaction(['gastosRecurrentes', 'pagosRecurrentes'], 'readwrite');
+  const tx = db.transaction(['gastosRecurrentes', 'pagosRecurrentes', 'comprobantes'], 'readwrite');
   const gastoAnterior = await tx.objectStore('gastosRecurrentes').get(gastoId);
   if (!gastoAnterior) throw new Error(`No existe el gasto recurrente ${gastoId}`);
   const pagos = await tx.objectStore('pagosRecurrentes').index('porGastoRecurrente').getAll(gastoId);
   const { hasta, idsABorrar } = planQuitar(pagos, mes);
   void tx.objectStore('gastosRecurrentes').put({ ...gastoAnterior, hasta });
-  for (const id of idsABorrar) void tx.objectStore('pagosRecurrentes').delete(id);
+  // Los comprobantes de las filas borradas se van con ellas, y vuelven con "Deshacer".
+  const comprobantesBorrados: Comprobante[] = [];
+  for (const id of idsABorrar) {
+    const comprobante = await tx.objectStore('comprobantes').get(id);
+    if (comprobante) comprobantesBorrados.push(comprobante);
+  }
+  for (const id of idsABorrar) {
+    void tx.objectStore('pagosRecurrentes').delete(id);
+    void tx.objectStore('comprobantes').delete(id);
+  }
   await tx.done;
-  return { gastoAnterior, pagosBorrados: pagos.filter((p) => idsABorrar.includes(p.id)) };
+  return { gastoAnterior, pagosBorrados: pagos.filter((p) => idsABorrar.includes(p.id)), comprobantesBorrados };
 }
 
 /** Deja el gasto y sus filas tal como estaban antes de quitarlo. */
 export async function deshacerQuitar(db: BaseDeDatos, deshacer: DeshacerQuitar): Promise<void> {
-  const tx = db.transaction(['gastosRecurrentes', 'pagosRecurrentes'], 'readwrite');
+  const tx = db.transaction(['gastosRecurrentes', 'pagosRecurrentes', 'comprobantes'], 'readwrite');
   void tx.objectStore('gastosRecurrentes').put(deshacer.gastoAnterior);
   for (const pago of deshacer.pagosBorrados) void tx.objectStore('pagosRecurrentes').put(pago);
+  for (const comprobante of deshacer.comprobantesBorrados) void tx.objectStore('comprobantes').put(comprobante);
   await tx.done;
 }
