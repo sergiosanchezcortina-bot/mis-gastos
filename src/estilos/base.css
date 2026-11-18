@@ -1185,3 +1185,227 @@ a.boton-secundario {
 .boton-hecho:hover {
   background: var(--color-acento);
 }
+
+/* ---------- Calendario (fase 8, CAL-1 a CAL-5) ---------- */
+
+.estimado {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+}
+
+/* Tramos con relleno distinto (lleno, rayado y rayado fino), no solo color. */
+.tramo-estimado--gastado {
+  background: var(--color-barra);
+}
+
+.tramo-estimado--recurrentes {
+  background: repeating-linear-gradient(45deg, var(--color-barra) 0 4px, var(--color-fondo-suave) 4px 8px);
+}
+
+.tramo-estimado--por-hacer {
+  background: repeating-linear-gradient(-45deg, var(--color-acento-texto) 0 2px, var(--color-fondo) 2px 6px);
+  box-shadow: inset 0 0 0 1px var(--color-acento-texto);
+}
+
+.barra-tramos {
+  display: flex;
+  gap: 2px;
+  height: 20px;
+  margin-top: var(--espacio-2);
+  border-radius: var(--radio-control);
+  overflow: hidden;
+  background: var(--color-fondo-suave);
+}
+
+.barra-tramos__tramo {
+  flex-basis: 0;
+  min-width: 4px;
+}
+
+.leyenda-estimado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2) var(--espacio-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.leyenda-estimado li {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-2);
+}
+
+.leyenda-estimado__muestra {
+  width: 20px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.calendario {
+  margin-top: var(--espacio-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+}
+
+.calendario__grilla {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--espacio-1);
+  margin-top: var(--espacio-2);
+}
+
+.calendario__cabecera {
+  padding: var(--espacio-1) var(--espacio-2);
+  font-size: var(--texto-secundario);
+  font-weight: var(--peso-fuerte);
+  color: var(--color-texto-secundario);
+}
+
+.calendario__dia {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 84px;
+  padding: var(--espacio-2);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-control);
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.calendario__dia:hover {
+  background: var(--color-fondo-suave);
+}
+
+.calendario__dia[aria-pressed='true'] {
+  border: 2px solid var(--color-borde-control);
+  background: var(--color-fondo-suave);
+}
+
+.calendario__dia--hoy {
+  border-color: var(--color-acento-texto);
+}
+
+.calendario__numero {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  font-weight: var(--peso-fuerte);
+}
+
+.calendario__hoy {
+  padding: 0 var(--espacio-2);
+  border-radius: var(--radio-pildora);
+  background: var(--color-acento);
+  font-size: var(--texto-secundario);
+}
+
+.calendario__linea {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--texto-secundario);
+  white-space: nowrap;
+}
+
+.calendario__linea .icono {
+  width: 14px;
+  height: 14px;
+}
+
+.calendario__linea--hecho {
+  color: var(--color-acento-texto);
+}
+
+.calendario__linea--vencido {
+  color: var(--color-alerta-texto);
+  font-weight: var(--peso-fuerte);
+}
+
+.calendario__simbolos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-6);
+}
+
+.calendario__simbolos span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1);
+}
+
+.detalle-dia {
+  margin-top: var(--espacio-4);
+  padding-top: var(--espacio-4);
+  border-top: 1px solid var(--color-divisor);
+}
+
+.detalle-dia__titulo {
+  margin: 0 0 var(--espacio-2);
+  font-size: var(--texto-subtitulo);
+}
+
+.detalle-dia__lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.elemento-dia {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-4);
+  min-height: var(--alto-minimo-clic);
+  padding: var(--espacio-1) 0;
+}
+
+.elemento-dia + .elemento-dia {
+  border-top: 1px solid var(--color-divisor);
+}
+
+.elemento-dia .estado {
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.elemento-dia__nombre {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.elemento-dia__monto {
+  font-weight: var(--peso-fuerte);
+}
+
+.elemento-dia--pendiente .elemento-dia__monto {
+  color: var(--color-texto-secundario);
+}
+
+.elemento-dia__accion {
+  width: 190px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.acumulado {
+  margin-top: var(--espacio-4);
+}
+
+.barra--acumulado {
+  display: flex;
+  overflow: hidden;
+}
+
+.barra__estimado {
+  height: 12px;
+  background: repeating-linear-gradient(45deg, var(--color-barra) 0 3px, var(--color-fondo-suave) 3px 7px);
+}

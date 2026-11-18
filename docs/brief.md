@@ -133,7 +133,7 @@ Referencia: `design/pantallas/gastos-no-recurrentes.html`.
   2. "¿Cuándo fue?": tres botones, "Hoy" (seleccionado por defecto), "Ayer" y "Otro día". "Otro día" muestra un selector de fecha que no acepta fechas futuras.
   3. "¿En qué fue?": un botón por categoría visible, con ícono y texto. Se elige una.
   4. "Descripción (opcional)": texto libre de hasta 60 caracteres (fase 7).
-- **NOR-11.** Gastos por hacer (fase 8): antes del paso 2, la pregunta "¿Ya lo hiciste?" con dos botones, "Ya lo hice" (por defecto) y "Lo voy a hacer". Con "Lo voy a hacer", el paso 2 pide el día ("Hoy", "Mañana" u "Otro día") y acepta fechas futuras. Un gasto por hacer:
+- **NOR-11.** Gastos por hacer (fase 8): antes del paso 1, la pregunta "¿Ya lo hiciste?" con dos botones, "Ya lo hice" (por defecto) y "Lo voy a hacer". Con "Lo voy a hacer", el paso 2 pide el día ("Hoy", "Mañana" u "Otro día") y acepta fechas futuras. Un gasto por hacer:
   - Se ve distinto en la tabla: borde punteado, ícono de reloj, "Por hacer" con su fecha y el monto en gris.
   - No cuenta como gastado. Se muestra aparte como "por hacer".
   - Tiene el botón "Ya lo hice", que lo deja como gasto normal con la fecha de hoy (o el último día de su mes, si ese mes ya pasó).

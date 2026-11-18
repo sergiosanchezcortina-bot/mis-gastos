@@ -3,6 +3,7 @@ import { BarraLateral, TITULOS, type Pestana } from './componentes/BarraLateral'
 import { ProveedorMes } from './estado/MesContext';
 import type { BaseDeDatos } from './datos/db';
 import { Resumen } from './pantallas/Resumen';
+import { Calendario } from './pantallas/Calendario';
 import { GastosRecurrentes } from './pantallas/GastosRecurrentes';
 import { GastosNoRecurrentes } from './pantallas/GastosNoRecurrentes';
 import { Ajustes } from './pantallas/Ajustes';
@@ -28,6 +29,7 @@ export function App({ db, obtenerHoy }: Props) {
         <main className="contenido">
           <div className="contenido__columna">
             {pestana === 'resumen' && <Resumen irA={setPestana} />}
+            {pestana === 'calendario' && <Calendario />}
             {pestana === 'recurrentes' && <GastosRecurrentes />}
             {pestana === 'noRecurrentes' && <GastosNoRecurrentes />}
             {pestana === 'ajustes' && <Ajustes />}

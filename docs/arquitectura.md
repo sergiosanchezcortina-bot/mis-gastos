@@ -76,6 +76,7 @@ type Gasto = {
   monto: number;                   // entero mayor que 0
   categoriaId: string;
   descripcion: string | null;      // texto libre opcional, hasta 60 caracteres (esquema 2)
+  porHacer: boolean;               // esquema 3: true = todavía no se hace; no cuenta como gastado
   origen: 'manual' | 'cartola';
   glosa: string | null;            // fase 6: texto de la cartola
   movimientoId: string | null;     // fase 6
@@ -108,7 +109,9 @@ Para un mes `m`:
 - `totalRecurrentes(m)` = suma de `monto` de los `PagoRecurrente` de `m`. Un monto `null` cuenta como 0.
 - `pagadoRecurrentes(m)` = suma de `monto` de los que tienen `pagado = true`.
 - `porPagar(m)` = `totalRecurrentes(m)` menos `pagadoRecurrentes(m)`.
-- `noRecurrentes(m)` = suma de `monto` de los `Gasto` con `fecha` en `m`.
+- `noRecurrentes(m)` = suma de `monto` de los `Gasto` con `fecha` en `m` y `porHacer = false`.
+- `porHacer(m)` = suma de `monto` de los `Gasto` con `fecha` en `m` y `porHacer = true`. No es parte de `gastado(m)`.
+- `estimado(m)` (Calendario) = `gastado(m)` + `porPagar(m)` + `porHacer(m)`. En un mes terminado, solo `gastado(m)`.
 - `gastado(m)` = `pagadoRecurrentes(m)` + `noRecurrentes(m)`.
 - `gastadoHasta(m, d)` = gastos con `fecha` hasta el día `d` de `m`, más pagos recurrentes pagados con `fechaPago` hasta el día `d` de `m`.
 

@@ -1,12 +1,13 @@
 import { Icono, type NombreIcono } from './Icono';
 
-export type Pestana = 'resumen' | 'recurrentes' | 'noRecurrentes' | 'ajustes';
+export type Pestana = 'resumen' | 'calendario' | 'recurrentes' | 'noRecurrentes' | 'ajustes';
 
 type Item = { id: Pestana; texto: string; icono: NombreIcono };
 
 // La pestaña Cartola se agrega en la fase 6 (brief 6.2).
 const PRINCIPALES: Item[] = [
   { id: 'resumen', texto: 'Resumen', icono: 'resumen' },
+  { id: 'calendario', texto: 'Calendario', icono: 'calendario' },
   { id: 'recurrentes', texto: 'Gastos recurrentes', icono: 'recurrentes' },
   { id: 'noRecurrentes', texto: 'Gastos no recurrentes', icono: 'noRecurrentes' },
 ];
@@ -15,6 +16,7 @@ const AJUSTES: Item = { id: 'ajustes', texto: 'Ajustes', icono: 'ajustes' };
 
 export const TITULOS: Record<Pestana, string> = {
   resumen: 'Resumen',
+  calendario: 'Calendario',
   recurrentes: 'Gastos recurrentes',
   noRecurrentes: 'Gastos no recurrentes',
   ajustes: 'Ajustes',

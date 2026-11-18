@@ -56,6 +56,8 @@ describe('navegación', () => {
     await usuario.tab();
     expect(pestana('Resumen')).toHaveFocus();
     await usuario.tab();
+    expect(pestana('Calendario')).toHaveFocus();
+    await usuario.tab();
     expect(pestana('Gastos recurrentes')).toHaveFocus();
     await usuario.keyboard('{Enter}');
     expect(screen.getByRole('heading', { level: 1, name: 'Gastos recurrentes' })).toBeInTheDocument();
